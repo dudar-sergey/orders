@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+            <a href="{{ path('addSale') }}" class="m-3">
+                <button class="btn btn-primary">Добавить продажу</button>
+            </a>
+        <div class="col-md-12">
+            <div class="card striped-with-hover">
+                <div class="card-body table-full-width table-responsive">
+                    <div class="card-body table-full-width table-responsive">
+                        <table class="table table-hover table-striped text-center">
+                            <thead class="text-center">
+                            <th class="text-dark">Дата продажи</th>
+                            <th class="text-dark">Артикул</th>
+                            <th class="text-dark">Название</th>
+                            <th class="text-dark">Платформа</th>
+                            <th class="text-dark">Статус</th>
+                            <th class="text-dark">№ заказа</th>
+                            <th class="text-dark">Кол-во</th>
+                            <th class="text-dark">Стоимость</th>
+                            <th class="text-dark">Закупка</th>
+                            <th class="text-dark">Валюта</th>
+                            <th class="text-dark">Карточка</th>
+                            </thead>
+                            <tbody>
+                            {% for sale in sales %}
+                                <tr>
+                                    <td>{{ sale.createAt | date }}</td>
+                                    <td>{{ sale.product.articul }}</td>
+                                    <td>{{ sale.product.name }}</td>
+                                    <td>{{ sale.platform }}</td>
+                                    <td>{{ sale.status }}</td>
+                                    <td>{{ sale.orderNumber}}</td>
+                                    <td>{{ sale.quantity }}</td>
+                                    <td>{{ sale.price }}</td>
+                                    <td>{{ sale.purchase }}</td>
+                                    <td>{{ sale.currency }}</td>
+                                    <td><a href="{{ path('salecard', {'saleId': sale.id}) }}">Карточка</a></td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</div>
+{% endblock %}

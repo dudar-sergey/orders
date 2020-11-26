@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <a href="{{ path('supplies') }}" class="m-3">Назад</a>
+    <section id="contact">
+        <div class="section-content">
+            <h1 class="section-header">Добавить поставку</h1>
+        </div>
+        <div class="contact-section">
+            <div class="container">
+                {{ form_start(form) }}
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        {{ form_row(form.header.sender) }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ form_row(form.header.recipient) }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        {{ form_row(form.header.contract) }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ form_row(form.header.date) }}
+                    </div>
+                </div>
+                <div class="form-row text-center">
+                    <div class="form-group col-md-12">
+                        {{ form_label(form.file) }}
+                        {{ form_widget(form.file, {'attr': {'class': 'ml-3'}}) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="container">
+        <div class="row mt-3 justify-content-center">
+            {% if(form['product0'] is defined) %}
+                <table class="table">
+                    <thead>
+                    <th>#</th>
+                    <th>Имя</th>
+                    <th>Артикул</th>
+                    <th>Количество</th>
+                    <th>UPC</th>
+                    <th>Сумма</th>
+                    <th>Изображения</th>
+                    </thead>
+                    <tbody>
+                        {% for i in 0..quantity-1 %}
+                            <tr>
+                                <td>{{ i+1 }}</td>
+                                <td>{{ form_row(form['product' ~ i].name) }}</td>
+                                <td>{{ form_row(form['product' ~ i].articul) }}</td>
+                                <td>{{ form_row(form['product' ~ i].quantity) }}</td>
+                                <td>{{ form_row(form['product' ~ i].upc) }}</td>
+                                <td>{{ form_row(form['product' ~ i].price) }}</td>
+                                <td>{{ form_row(form['product' ~ i].images) }} <i class="fas fa-info-circle" title="Вставлять ссылки через точку с запятой"></i></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+            <button type="submit" name="submit" value="2" class="btn btn-primary">Отправить</button>
+            <button type="submit" name="submit" value="1" class="btn btn-primary">Добавить строку</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

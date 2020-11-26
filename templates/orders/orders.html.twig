@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="container-fluid">
+        <div class="row">
+            <a href="{{ path('syncOrdersFromEbay') }}" class="m-3">
+                <button class="btn btn-primary mb-3"><i class="fas fa-sync"></i> Синхронизировать из eBay</button>
+            </a>
+            <div class="form-group m-3 text-right">
+                <input type="text" class="form-control pull-right" id="search" placeholder="Поиск по таблице">
+            </div>
+        </div>
+        <div class="card striped-with-hover">
+            <div class="card-body table-full-width table-responsive">
+                <div class="card-body table-full-width table-responsive">
+                    <table class="tsort table table-hover table-striped" id="mytable">
+                        <thead>
+                        <th scope="col">ID заказа</th>
+                        <th scope="col">Покупатель</th>
+                        <th scope="col">Название</th>
+                        <th scope="col">Сумма заказа</th>
+                        <th scope="col">Оплата</th>
+                        <th scope="col">Дата заказа</th>
+                        </thead>
+                        <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td>{{ order.eId }}</td>
+                                <td>{{ order.buyer }}</td>
+                                <td>
+                                    {% for product in order.getProducts %}
+                                        {{ product.name }}
+                                    {% endfor %}
+                                </td>
+                                <td>{{ order.price }}</td>
+                                <td>{{ order.payment }}</td>
+                                <td>{{ order.date|date }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

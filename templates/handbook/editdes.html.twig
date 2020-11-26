@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <a href="{{ path('handbook') }}" class="m-3">Назад</a>
+    <div class="container">
+        <div class="row justify-content-center\ mb-5">
+            <h3>Изменение товарной группы</h3>
+        </div>
+        <div class="row">
+            {{ form_start(form, {'attr': {'class': 'w-100'}}) }}
+            {{ form_row(form.enName) }}
+            {{ form_row(form.enDes) }}
+            {{ form_row(form.plName) }}
+            {{ form_row(form.plDes) }}
+            {{ form_row(form.frName) }}
+            {{ form_row(form.frDes) }}
+            <button type="submit" class="btn btn-outline" name="submit">Обновить</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
