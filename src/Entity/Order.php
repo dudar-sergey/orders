@@ -50,6 +50,21 @@ class Order
      */
     private $date;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $placement;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=AllegroOffer::class, inversedBy="orders")
+     */
+    private $allegroOffer;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $allegroId;
+
     public function __construct()
     {
         $this->ProductId = new ArrayCollection();
@@ -142,6 +157,42 @@ class Order
     public function setDate(?\DateTimeInterface $date): self
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    public function getPlacement(): ?string
+    {
+        return $this->placement;
+    }
+
+    public function setPlacement(?string $placement): self
+    {
+        $this->placement = $placement;
+
+        return $this;
+    }
+
+    public function getAllegroOffer(): ?AllegroOffer
+    {
+        return $this->allegroOffer;
+    }
+
+    public function setAllegroOffer(?AllegroOffer $allegroOffer): self
+    {
+        $this->allegroOffer = $allegroOffer;
+
+        return $this;
+    }
+
+    public function getAllegroId(): ?string
+    {
+        return $this->allegroId;
+    }
+
+    public function setAllegroId(?string $allegroId): self
+    {
+        $this->allegroId = $allegroId;
 
         return $this;
     }

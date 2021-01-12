@@ -12,14 +12,13 @@ class Allegro
     private $clientSecret;
     private $client;
     private $accessToken;
-    private $tokenForUser;
 
     public function __construct()
     {
         $this->clientId = 'a95c7c8a0337479daa2813be1f8cb669';
         $this->clientSecret = 'KcHtgbkCK9XdQhUu0vYvpVGzNuFdfCctAbUt2ugstAkgvacYzai8PhT9H9iyUyHV';
         $this->client = HttpClient::create([
-            'proxy'=>'http://Aw62UQ:7E0Jb2@45.134.55.94:8000',
+            'proxy'=>'http://wNogF3:k1VdVC@185.183.161.196:8000',
         ]);
         $this->createAccessToken();
     }
@@ -32,12 +31,14 @@ class Allegro
 
     public function createAccessToken()
     {
-        $response = $this->client->request('POST', 'https://allegro.pl/auth/oauth/token?grant_type=client_credentials', [
-            'headers' => [
-                'Authorization' => 'Basic '.$this->getTokenBase64(),
-            ],
-        ]);
-        $this->accessToken = json_decode($response->getContent(), true)['access_token'];
+        try{
+            $response = $this->client->request('POST', 'https://allegro.pl/auth/oauth/token?grant_type=client_credentials', [
+                'headers' => [
+                    'Authorization' => 'Basic '.$this->getTokenBase64(),
+                ],
+            ]);
+            $this->accessToken = json_decode($response->getContent(), true)['access_token'];
+        }catch (\Exception $e){}
     }
 
     public function getTokenForUser($code)

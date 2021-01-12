@@ -76,7 +76,7 @@ class Product
 
 
     /**
-     * @ORM\ManyToMany(targetEntity=Product::class, inversedBy="analogs")
+     * @ORM\ManyToMany(targetEntity=Product::class)
      */
     private $analogs;
 

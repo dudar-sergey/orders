@@ -81,9 +81,6 @@
     "egulias/email-validator": {
         "version": "2.1.20"
     },
-    "harvesthq/chosen": {
-        "version": "v1.8.7"
-    },
     "monolog/monolog": {
         "version": "2.1.1"
     },

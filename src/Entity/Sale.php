@@ -65,7 +65,7 @@ class Sale
     private $currency;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Product::class)
+     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="sales")
      */
     private $product;
 

@@ -244,16 +244,16 @@ class Add
         $this->em->flush();
     }
 
-    public function addKitProduct($firstProduct, $options)
+    public function addKitProduct($products, $options)
     {
         $newProduct = new Product();
         $name = '';
-        if($firstProduct)
+        if($products)
         {
-            foreach ($firstProduct as $item)
+            foreach ($products as $product)
             {
-                $newProduct->addKitProduct($item);
-                $name.= $item->getName().' + ';
+                $newProduct->addKitProduct($product);
+                $name.= $product->getName().' + ';
             }
             $name = mb_strrchr($name, ' + ', true);
             $newProduct->setArticul($options['article']);

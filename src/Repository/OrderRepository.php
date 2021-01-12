@@ -2,8 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\AllegroOffer;
 use App\Entity\Order;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -14,37 +16,58 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class OrderRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $em;
+
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $em)
     {
         parent::__construct($registry, Order::class);
+        $this->em = $em;
     }
 
-    // /**
-    //  * @return Order[] Returns an array of Order objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @param $data
+     * - allegroOfferId
+     * - price
+     * - buyer
+     * - payment
+     * - Date date
+     * - placement
+     * - allegroId
+     * @return Order
+     */
+    public function createUpdateOrder($data): Order
+    {
+        /** @var AllegroOffer $allegroOffer */
+        $allegroOffer = $this->em->getRepository(AllegroOffer::class)->findOneBy(['allegroId' => $data['allegroOfferId']]);
+        $price = $data['price'];
+        $buyer = $data['buyer'];
+        $payment = $data['payment'];
+        $date = $data['date'];
+        $placement = $data['placement'];
+        $allegroId = $data['allegroId'];
+        $order = $this->findOneBy(['allegroId' => $allegroId]);
+        if(!$order)
+            $order = new Order();
+        $order
+            ->setAllegroOffer($allegroOffer)
+            ->setPrice($price)
+            ->setBuyer($buyer)
+            ->setPayment($payment)
+            ->setDate($date)
+            ->setPlacement($placement)
+            ->setAllegroId($allegroId)
+        ;
+        $this->em->persist($order);
+        $this->em->flush();
+        return $order;
+    }
+
+    public function findAllByDate()
     {
         return $this->createQueryBuilder('o')
-            ->andWhere('o.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('o.id', 'ASC')
-            ->setMaxResults(10)
+            ->orderBy('o.date')
             ->getQuery()
             ->getResult()
-        ;
+            ;
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Order
-    {
-        return $this->createQueryBuilder('o')
-            ->andWhere('o.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

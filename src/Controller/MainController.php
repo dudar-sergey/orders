@@ -10,13 +10,11 @@ use App\ebay\AllegroUserManager;
 use App\Entity\Description;
 use App\Entity\Order;
 use App\Entity\Product;
-use App\Entity\ProductGroup;
 use App\Entity\Sale;
 use App\Entity\Supply;
 use App\Form\CreateOfferType;
 use App\Form\DescriptionType;
 use App\Form\KitType;
-use App\Form\ManyDescriptionType;
 use App\Form\MNumberType;
 use App\Form\ProductType;
 use App\Form\SaleType;
@@ -30,18 +28,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\ebay\Ebay;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+
 
 class MainController extends AbstractController
 {
-    private $ebay;
-    private $em;
-    private $allegro;
-    private $session;
-    private $am;
+    protected $ebay;
+    protected $em;
+    protected $allegro;
+    protected $session;
+    protected $am;
 
     public function __construct(Ebay $ebay, EntityManagerInterface $em, Allegro $allegro, SessionInterface $session, AllegroUserManager $am)
     {
@@ -55,7 +50,7 @@ class MainController extends AbstractController
     /**
      * @Route("/", name="home")
      */
-    public function index()
+    public function index(): Response
     {
 
         return $this->render('main/main.html.twig', []);
@@ -63,15 +58,27 @@ class MainController extends AbstractController
 
     /**
      * @Route("/products", name="products")
+     * @param Request $request
      * @return Response
      */
-    public function showProducts()
+    public function showProducts(Request $request): Response
     {
-        $products = $this->em->getRepository(Product::class)->findAll();
+        $limit = 10;
+        $page = $request->get('p') == 0 ? 1: $request->get('p');
+        $pages = ceil((count($this->em->getRepository(Product::class)->findAll())/10));
+        $products = $this->em->getRepository(Product::class)->findBy([], null, $limit, ($page-1)*$limit);
+
+        if ($request->get('search'))
+        {
+            $products = $this->em->getRepository(Product::class)->findByArticleAndName($request->get('search'));
+            $pages = 1;
+        }
+
         $forRender = [
             'products' => $products,
             'countOfProducts' => count($products),
-
+            'pages' => $pages,
+            'currentPage' => $page ? $page: 1,
         ];
         return $this->render('products/products.html.twig', $forRender);
     }
@@ -81,7 +88,7 @@ class MainController extends AbstractController
      * @param $productId
      * @return RedirectResponse
      */
-    public function deleteProduct($productId)
+    public function deleteProduct($productId): RedirectResponse
     {
         $product = $this->em->getRepository(Product::class)->find($productId);
 
@@ -99,7 +106,7 @@ class MainController extends AbstractController
      * @return Response
      * @throws \Exception
      */
-    public function createOfferAllegro($productId)
+    public function createOfferAllegro($productId): Response
     {
         $product = $this->em->getRepository(Product::class)->find($productId);
         if($product)
@@ -125,7 +132,7 @@ class MainController extends AbstractController
      * @param Add $add
      * @return Response
      */
-    public function createKit(Request $request, Add $add)
+    public function createKit(Request $request, Add $add): Response
     {
         $form = $this->createForm(KitType::class);
         $form->handleRequest($request);
@@ -151,9 +158,9 @@ class MainController extends AbstractController
     /**
      * @Route("/orders", name="orders")
      */
-    public function showOrders()
+    public function showOrders(): Response
     {
-        $orders = $this->em->getRepository(Order::class)->findAll();
+        $orders = $this->em->getRepository(Order::class)->findAllByDate();
         $forRender['orders'] = $orders;
         return $this->render('orders/orders.html.twig', $forRender);
     }
@@ -161,14 +168,9 @@ class MainController extends AbstractController
     /**
      * @Route("/test", name="test")
      */
-    public function ord()
+    public function ord(): JsonResponse
     {
-        $product = $this->em->getRepository(Product::class)->find(61);
-        //$response = $this->am->getOfferFromAllegro(9939962050, true);
-        //$response = $this->am->addOfferToAllegro($product);
-        $response = $this->am->changeStatusOffer(9939962050, 'END');
-
-        return new JsonResponse($response->getContent(), 200, [], true);
+       return new JsonResponse($this->am->getOrdersFromAllegro(), 200, [], true);
     }
 
     /**
@@ -176,7 +178,7 @@ class MainController extends AbstractController
      * @param Request $request
      * @return RedirectResponse
      */
-    public function test(Request $request)
+    public function test(Request $request): RedirectResponse
     {
         $code = $request->get('code');
         if($code)
@@ -202,7 +204,7 @@ class MainController extends AbstractController
      * @param Add $add
      * @return Response
      */
-    public function addItem(Request $request, Add $add)
+    public function addItem(Request $request, Add $add): Response
     {
         $form = $this->createForm(MNumberType::class, null, [
             'add' => $request->get('submit') === '1',
@@ -229,7 +231,7 @@ class MainController extends AbstractController
     /**
      * @Route("/supplies", name="supplies")
      */
-    public function suppliesAction()
+    public function suppliesAction(): Response
     {
         $supplies = $this->em->getRepository(Supply::class)->findAll();
         $forRender['supplies'] = $supplies;
@@ -241,7 +243,7 @@ class MainController extends AbstractController
      * @param Add $add
      * @return Response
      */
-    public function syncFromEbayAction(Add $add)
+    public function syncFromEbayAction(Add $add): Response
     {
         $add->syncFromEbay();
 
@@ -254,11 +256,11 @@ class MainController extends AbstractController
      * @param $productId
      * @return JsonResponse
      */
-    public function addToAllegro($productId)
+    public function addToAllegro($productId): JsonResponse
     {
         $product = $this->em->getRepository(Product::class)->find($productId);
         return $this->am->changeStatusOffer(9953701920, 'END');
-    }
+    }//Функция не готова :(
 
 
     /**
@@ -267,7 +269,7 @@ class MainController extends AbstractController
      * @param Add $add
      * @return RedirectResponse
      */
-    public function syncToEbay($supplyId, Add $add)
+    public function syncToEbay($supplyId, Add $add): RedirectResponse
     {
         /** @var Supply $supply */
         $supply = $this->em->getRepository(Supply::class)->find($supplyId);
@@ -290,7 +292,7 @@ class MainController extends AbstractController
      * @param Add $add
      * @return RedirectResponse
      */
-    public function syncProductToEbay($productId, Add $add)
+    public function syncProductToEbay($productId, Add $add): RedirectResponse
     {
         $product = $this->em->getRepository(Product::class)->findBy(['id' => $productId]);
 
@@ -319,12 +321,12 @@ class MainController extends AbstractController
     }
 
     /**
-     * @Route("/products/{itemId}", name="cardItem")
+     * @Route("/products/{itemId}", name="cardItem", requirements={"itemId"="\d+"})
      * @param $itemId
      * @param Request $request
      * @return Response
      */
-    public function cardItem($itemId, Request $request)
+    public function cardItem($itemId, Request $request): Response
     {
         $forRender = [];
         $product = $this->em->getRepository(Product::class)->find($itemId);
@@ -349,7 +351,7 @@ class MainController extends AbstractController
      * @Route("/sales", name="sales")
      *
      */
-    public function sales()
+    public function sales(): Response
     {
         $sales = $this->em->getRepository(Sale::class)->findAll();
         $forRender['sales'] = $sales;
@@ -364,7 +366,7 @@ class MainController extends AbstractController
      * @param Add $add
      * @return Response
      */
-    public function addSale(Request $request, Add $add)
+    public function addSale(Request $request, Add $add): Response
     {
         $form = $this->createForm(SaleType::class);
         $form->handleRequest($request);
@@ -388,7 +390,7 @@ class MainController extends AbstractController
     /**
      * @Route("/book", name="handbook")
      */
-    public function handbookAction()
+    public function handbookAction(): Response
     {
         $descriptions = $this->em->getRepository(Description::class)->findAll();
         $forRender = [
@@ -403,7 +405,7 @@ class MainController extends AbstractController
      * @param Request $request
      * @return Response
      */
-    public function editGroupAction($groupId, Request $request)
+    public function editGroupAction($groupId, Request $request): Response
     {
         $description = $this->em->getRepository(Description::class)->find($groupId);
         if($description)
@@ -434,7 +436,7 @@ class MainController extends AbstractController
      * @param Request $request
      * @return Response
      */
-    public function saleCardAction($saleId, Request $request)
+    public function saleCardAction($saleId, Request $request): Response
     {
         $sale = $this->em->getRepository(Sale::class)->find($saleId);
 
@@ -458,5 +460,38 @@ class MainController extends AbstractController
             'form' => $form->createView(),
         ];
         return $this->render('sales/salecard.html.twig', $forRender);
+    }
+
+    /**
+     *@Route("/products/sync_from_alegro", name="syncFromAllegro")
+     */
+    public function syncFromAllegro(): RedirectResponse
+    {
+        $this->am->getOffersFromAllegro();
+        return $this->redirectToRoute('products');
+    }
+
+    /**
+     * @Route("/orders/sync_from_allegro", name="syncOrdersFromAllegro")
+     */
+    public function syncOrdersFromAllegro()
+    {
+        $this->am->syncOrdersFromAllegro();
+
+        return $this->redirectToRoute('orders');
+    }
+
+    /**
+     * @Route("/orders/{orderId}", name="orderCard")
+     * @param $orderId
+     * @return Response
+     */
+    public function orderCard($orderId): Response
+    {
+        $response = $this->am->getAnOrder($orderId);
+
+        return $this->render('orders/card.html.twig', [
+            'response' => json_decode($response, true)
+        ]);
     }
 }

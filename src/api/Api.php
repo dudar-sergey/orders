@@ -36,10 +36,37 @@ class Api
 
     public function getOrders()
     {
+        /** @var Order $orders */
         $orders = $this->em->getRepository(Order::class)->findAll();
         if($orders)
         {
-            $data =  $this->transformInArray($orders);
+            foreach ($orders as $order)
+            {
+                $date = $order->getDate()->format('d-m-Y');
+                $data['orders'][] = [
+                    'allegroId' => $order->getAllegroId(),
+                    'allegroOffer' => $order->getAllegroOffer(),
+                    'buyer' => $order->getBuyer(),
+                    'eId' => $order->getEId(),
+                    'payment' => $order->getPayment(),
+                    'placement' => $order->getPlacement(),
+                    'price' => $order->getPrice(),
+                    'products' => $order->getProducts(),
+                    'id' => $order->getId(),
+                    'date' => $date,
+                ];
+            }
+            $orders = $this->transformInArray($orders);
+            foreach ($orders[0] as $key => $order)
+            {
+                $data['columns'][] = [
+                    'field' => $key,
+                    'label' => $key,
+                    'centered' => true,
+                    'searchable' => true
+
+                ];
+            }
             return $this->response($data);
         }
         else

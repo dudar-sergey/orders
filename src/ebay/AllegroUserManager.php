@@ -5,6 +5,7 @@ namespace App\ebay;
 
 
 use App\Entity\AllegroOffer;
+use App\Entity\Order;
 use App\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpClient\HttpClient;
@@ -25,7 +26,7 @@ class AllegroUserManager
     {
         $this->session = $session;
         $this->client = HttpClient::create([
-            'proxy'=>'http://Aw62UQ:7E0Jb2@45.134.55.94:8000',
+            'proxy'=>'http://wNogF3:k1VdVC@185.183.161.196:8000',
         ]);
         $this->em = $em;
     }
@@ -244,7 +245,7 @@ class AllegroUserManager
         }
     }
 
-    public function putOfferAllegro($allegroOfferId)
+    /*public function putOfferAllegro($allegroOfferId)
     {
         $jsonContent = $this->getOfferFromAllegro($allegroOfferId);
 
@@ -257,7 +258,7 @@ class AllegroUserManager
             'body' => $jsonContent,
         ]);
         return new JsonResponse($response->getContent(), 200, [], true);
-    }
+    }*/
 
     function GUIDv4 ($trim = true)
     {
@@ -291,5 +292,77 @@ class AllegroUserManager
             substr($charid, 20, 12).
             $rbrace;
         return $guidv4;
+    }
+
+    public function getOffersFromAllegro()
+    {
+        $response = null;
+        try {
+            $response = $this->client->request('GET', 'https://api.allegro.pl/sale/offers?limit=1000&publication.status=ACTIVE', [
+                'headers' => [
+                    'Authorization' => 'Bearer '.$this->session->get('userTokenAllegro'),
+                    'Accept' => 'application/vnd.allegro.public.v1+json',
+                ],
+            ])->getContent();
+        }
+        catch (\Exception $e)
+        {
+            var_dump($e->getMessage());
+        }
+
+        $productRep = $this->em->getRepository(Product::class);
+        $response = json_decode($response, true);
+        foreach ($response['offers'] as $offer)
+        {
+            $productRep->createProduct([
+                'name' => $offer['name'],
+                'article'  =>$offer['external']['id'],
+                'img' => $offer['primaryImage']['url'],
+                'price'  => $offer['sellingMode']['price']['amount'],
+                'quantity' => $offer['stock']['available'],
+                'allegroOffer' => $offer['id'],
+            ]);
+        }
+    }
+
+    public function syncOrdersFromAllegro()
+    {
+        $response = json_decode($this->getOrdersFromAllegro(), true);
+        $orders = $response['checkoutForms'] ?? null;
+
+        if($orders){
+            foreach ($orders as $order)
+            {
+                $offerId = $order['lineItems'][0]['offer']['id'];
+                $this->em->getRepository(Order::class)->createUpdateOrder([
+                    'allegroOfferId' => $offerId,
+                    'price'  => $order['summary']['totalToPay']['amount'],
+                    'buyer' => $order['buyer']['firstName'].' '.$order['buyer']['lastName'].' '.$order['buyer']['login'],
+                    'payment' => $order['status'],
+                    'date' => new \DateTime($order['updatedAt']),
+                    'placement' => 'allegro',
+                    'allegroId' => $order['id']
+                ]);
+            }
+        }
+    }
+
+    public function getAnOrder($orderId)
+    {
+        $response = null;
+        try {
+            $response = $this->client->request('GET', 'https://api.allegro.pl/order/checkout-forms/'.$orderId, [
+                'headers' => [
+                    'Authorization' => 'Bearer '.$this->session->get('userTokenAllegro'),
+                    'Accept' => 'application/vnd.allegro.public.v1+json',
+                ],
+            ])->getContent();
+        }
+        catch (\Exception $e)
+        {
+            var_dump($e->getMessage());
+        }
+
+        return $response;
     }
 }

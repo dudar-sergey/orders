@@ -31,10 +31,12 @@
                                 <thead>
                                     <th>Площадка</th>
                                     <th>Статус</th>
+                                    <th>Номер на площадке</th>
                                 </thead>
                                 <tbody>
                                     <td>Allegro</td>
                                     <td>{{ product.allegroOffer.status ?? 'Не выложен' }}</td>
+                                    <td>{{ product.allegroOffer.allegroId ?? 'Не выложен' }}</td>
                                 </tbody>
                             </table>
                         </div>
