@@ -25,7 +25,6 @@
                                 <table class="tsort table table-hover table-striped" id="mytable">
                                     <thead>
                                     <th scope="col">Изображение</th>
-                                    <th scope="col">ID товара</th>
                                     <th scope="col">Ариткул</th>
                                     <th scope="col">UPC</th>
                                     <th scope="col">Название</th>
@@ -37,7 +36,6 @@
                                     {% for product in products %}
                                         <tr>
                                             <td><img src="{{ product.images.first.url ?? 'https://cdn.pixabay.com/photo/2015/12/09/22/38/camera-1085705_960_720.png' }}" width="100" height="100" alt=""></td>
-                                            <td title="">{{ product.allegroOffer.allegroId ?? product.eId }}</td>
                                             <td>{{ product.articul }}</td>
                                             <td>{{ product.upc }}</td>
                                             <td><a href="{{ product.url }}">{{ product.name }}</a></td>

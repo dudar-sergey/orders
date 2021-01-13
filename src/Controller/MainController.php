@@ -167,10 +167,12 @@ class MainController extends AbstractController
 
     /**
      * @Route("/test", name="test")
+     * @param Request $request
+     * @return Response
      */
-    public function ord(): JsonResponse
+    public function ord(Request $request)
     {
-       return new JsonResponse($this->am->getOrdersFromAllegro(), 200, [], true);
+        return new Response('');
     }
 
     /**
@@ -476,7 +478,11 @@ class MainController extends AbstractController
      */
     public function syncOrdersFromAllegro()
     {
-        $this->am->syncOrdersFromAllegro();
+        try {
+            $this->am->syncOrdersFromAllegro();
+        }catch(\Exception $e){
+            $this->addFlash('notice','Ошибка подключения к Allegro');
+        }
 
         return $this->redirectToRoute('orders');
     }
