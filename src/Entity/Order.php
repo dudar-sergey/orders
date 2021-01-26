@@ -65,9 +65,20 @@ class Order
      */
     private $allegroId;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=PaymentStatus::class, inversedBy="orders")
+     */
+    private $status;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Sale::class, mappedBy="appOrder")
+     */
+    private $sales;
+
     public function __construct()
     {
         $this->ProductId = new ArrayCollection();
+        $this->sales = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -193,6 +204,48 @@ class Order
     public function setAllegroId(?string $allegroId): self
     {
         $this->allegroId = $allegroId;
+
+        return $this;
+    }
+
+    public function getStatus(): ?PaymentStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?PaymentStatus $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Sale[]
+     */
+    public function getSales(): Collection
+    {
+        return $this->sales;
+    }
+
+    public function addSale(Sale $sale): self
+    {
+        if (!$this->sales->contains($sale)) {
+            $this->sales[] = $sale;
+            $sale->setAppOrder($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSale(Sale $sale): self
+    {
+        if ($this->sales->removeElement($sale)) {
+            // set the owning side to null (unless already changed)
+            if ($sale->getAppOrder() === $this) {
+                $sale->setAppOrder(null);
+            }
+        }
 
         return $this;
     }

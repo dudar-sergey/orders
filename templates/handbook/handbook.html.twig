@@ -9,7 +9,7 @@
                 <ul class="list-group">
                     {% for description in descriptions %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ description.enName }}
+                            {{ description.enName ?? description.plName }}
                             <a href="{{ path('editGroup', {'groupId': description.id}) }}"><span class="badge badge-primary badge-pill ml-5">Изменить</span></a>
                         </li>
                     {% endfor %}

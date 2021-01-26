@@ -36,15 +36,15 @@ class DescriptionRepository extends ServiceEntityRepository
     }
     */
 
-    /*
-    public function findOneBySomeField($value): ?Description
+
+    public function findOneByPlName($value): ?Description
     {
-        return $this->createQueryBuilder('d')
-            ->andWhere('d.exampleField = :val')
-            ->setParameter('val', $value)
+        return $this->createQueryBuilder('o')
+            ->where('o.plName LIKE :search')
+            ->setParameter('search', $value)
             ->getQuery()
             ->getOneOrNullResult()
         ;
     }
-    */
+
 }

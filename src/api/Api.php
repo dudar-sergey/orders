@@ -4,7 +4,9 @@
 namespace App\api;
 
 
+use App\Add\Add;
 use App\Entity\Order;
+use App\Entity\PaymentStatus;
 use App\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,18 +20,19 @@ class Api
 {
     private $em;
     private $serializer;
+    private $add;
 
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, Add $add)
     {
         $encoders = new JsonEncoder();
         $normalizers = new ObjectNormalizer();
         $serializer = new Serializer([$normalizers], [$encoders]);
         $this->serializer = $serializer;
         $this->em = $em;
+        $this->add = $add;
     }
 
-    protected function response($data, $status=200, $headers = [])
+    public function response($data, $status=200, $headers = []): JsonResponse
     {
         return new JsonResponse($data, $status, $headers);
     }
@@ -131,5 +134,44 @@ class Api
             ];
             return $this->response($data, 400);
         }
+    }
+
+    public function changeOrderStatus($orderId, $paymentId): JsonResponse
+    {
+        $order = $this->em->getRepository(Order::class)->find($orderId ?? null);
+        if(!$paymentId)
+        {
+            $order->setStatus(null);
+            $this->em->flush();
+            return $this->response('Ok');
+        }
+        $payment = $this->em->getRepository(PaymentStatus::class)->find($paymentId);
+        if($order){
+                if($payment)
+                {
+                    $order->setStatus($payment);
+                    if ($payment->getId() == 1)
+                    {
+                        $this->add->addSale($this->getDataForSaleFromOrder());
+                    }
+                    $this->em->flush();
+                    return $this->response('Ok');
+                }
+                else{
+                    return $this->response('айди не оч', 400);
+                }
+        }
+        else{
+            return $this->response('Не найдено', 400);
+        }
+    }
+
+    public function getDataForSaleFromOrder(Order $order): array
+    {
+        return [
+            'product' => $order->getProducts()[0],
+            'order' => $order,
+            ''
+        ];
     }
 }

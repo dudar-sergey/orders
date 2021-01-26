@@ -9,6 +9,7 @@ use App\ebay\Allegro;
 use App\ebay\AllegroUserManager;
 use App\Entity\Description;
 use App\Entity\Order;
+use App\Entity\PaymentStatus;
 use App\Entity\Product;
 use App\Entity\Sale;
 use App\Entity\Supply;
@@ -63,9 +64,9 @@ class MainController extends AbstractController
      */
     public function showProducts(Request $request): Response
     {
-        $limit = 10;
+        $limit = $this->session->get('limit') ?? 10;
         $page = $request->get('p') == 0 ? 1: $request->get('p');
-        $pages = ceil((count($this->em->getRepository(Product::class)->findAll())/10));
+        $pages = ceil((count($this->em->getRepository(Product::class)->findAll())/$limit));
         $products = $this->em->getRepository(Product::class)->findBy([], null, $limit, ($page-1)*$limit);
 
         if ($request->get('search'))
@@ -79,6 +80,7 @@ class MainController extends AbstractController
             'countOfProducts' => count($products),
             'pages' => $pages,
             'currentPage' => $page ? $page: 1,
+            'limit' => $limit
         ];
         return $this->render('products/products.html.twig', $forRender);
     }
@@ -161,7 +163,11 @@ class MainController extends AbstractController
     public function showOrders(): Response
     {
         $orders = $this->em->getRepository(Order::class)->findAllByDate();
-        $forRender['orders'] = $orders;
+        $paymentStatuses = $this->em->getRepository(PaymentStatus::class)->findAll();
+        $forRender = [
+          'orders'  => $orders,
+          'paymentStatuses' => $paymentStatuses,
+        ];
         return $this->render('orders/orders.html.twig', $forRender);
     }
 
@@ -170,7 +176,7 @@ class MainController extends AbstractController
      * @param Request $request
      * @return Response
      */
-    public function ord(Request $request)
+    public function ord(Request $request): Response
     {
         return new Response('');
     }

@@ -69,6 +69,11 @@ class Sale
      */
     private $product;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Order::class, inversedBy="sales")
+     */
+    private $appOrder;
+
 
     public function getId(): ?int
     {
@@ -191,6 +196,18 @@ class Sale
     public function setProduct(?Product $product): self
     {
         $this->product = $product;
+
+        return $this;
+    }
+
+    public function getAppOrder(): ?Order
+    {
+        return $this->appOrder;
+    }
+
+    public function setAppOrder(?Order $appOrder): self
+    {
+        $this->appOrder = $appOrder;
 
         return $this;
     }

@@ -20,20 +20,22 @@ class SaleType extends AbstractType
         $builder
             ->add('product', EntityType::class, [
                 'class' => Product::class,
-                'label' => false,
+                'label' => 'Выберите товар',
                 'attr' => [
-                  'class' => 'form-control',
+                  'class' => 'form-control chosen-select',
                 ],
             ])
             ->add('platform', TextType::class, [
                 'attr' => [
                     'class' => 'form-control mb-3'
                 ],
+                'label' => 'Площадка',
             ])
             ->add('orderNumber', TextType::class, [
                 'attr' => [
                     'class' => 'form-control mb-3'
                 ],
+                'label' => 'Номер заказа',
             ])
             ->add('createAt', DateTimeType::class, [
                 'attr' => [
@@ -47,11 +49,13 @@ class SaleType extends AbstractType
                 'attr' => [
                     'class' => 'form-control mb-3'
                 ],
+                'label' => 'Количество',
             ])
             ->add('price', TextType::class, [
                 'attr' => [
                     'class' => 'form-control mb-3'
                 ],
+                'label' => 'Цена',
             ])
             ->add('purchase', TextType::class, [
                 'attr' => [

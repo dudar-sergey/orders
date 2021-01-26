@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\SupplyRepository;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -40,18 +41,18 @@ class Supply
     private $sync;
 
     /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="supply")
-     */
-    private $products;
-
-    /**
      * @ORM\Column(type="string", length=1000, nullable=true)
      */
     private $contract;
 
+    /**
+     * @ORM\OneToMany(targetEntity=SupplyProduct::class, mappedBy="supply")
+     */
+    private $supplyProducts;
+
     public function __construct()
     {
-        $this->products = new ArrayCollection();
+        $this->supplyProducts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -71,12 +72,12 @@ class Supply
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getDate(): ?DateTimeInterface
     {
         return $this->date;
     }
 
-    public function setDate(?\DateTimeInterface $date): self
+    public function setDate(?DateTimeInterface $date): self
     {
         $this->date = $date;
 
@@ -107,37 +108,6 @@ class Supply
         return $this;
     }
 
-    /**
-     * @return Collection|Product[]
-     */
-    public function getProducts(): Collection
-    {
-        return $this->products;
-    }
-
-    public function addProduct(Product $product): self
-    {
-        if (!$this->products->contains($product)) {
-            $this->products[] = $product;
-            $product->setSupply($this);
-        }
-
-        return $this;
-    }
-
-    public function removeProduct(Product $product): self
-    {
-        if ($this->products->contains($product)) {
-            $this->products->removeElement($product);
-            // set the owning side to null (unless already changed)
-            if ($product->getSupply() === $this) {
-                $product->setSupply(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getContract(): ?string
     {
         return $this->contract;
@@ -150,4 +120,33 @@ class Supply
         return $this;
     }
 
+    /**
+     * @return Collection|SupplyProduct[]
+     */
+    public function getSupplyProducts(): Collection
+    {
+        return $this->supplyProducts;
+    }
+
+    public function addSupplyProduct(SupplyProduct $supplyProduct): self
+    {
+        if (!$this->supplyProducts->contains($supplyProduct)) {
+            $this->supplyProducts[] = $supplyProduct;
+            $supplyProduct->setSupply($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSupplyProduct(SupplyProduct $supplyProduct): self
+    {
+        if ($this->supplyProducts->removeElement($supplyProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($supplyProduct->getSupply() === $this) {
+                $supplyProduct->setSupply(null);
+            }
+        }
+
+        return $this;
+    }
 }

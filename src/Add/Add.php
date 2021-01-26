@@ -9,20 +9,23 @@ use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\Sale;
 use App\Entity\Supply;
-use Doctrine\Common\Collections\Collection;
+use App\Entity\SupplyProduct;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpKernel\Exception\PreconditionFailedHttpException;
+use Symfony\Component\Serializer\Encoder\CsvEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 class Add
 {
     private $em;
     private $ebay;
+    private $serializer;
 
     public function __construct(EntityManagerInterface $em, Ebay $ebay)
     {
         $this->em = $em;
         $this->ebay = $ebay;
+        $this->serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder()]);
     }
 
     public function addDefaultSupply($data, $files = null)
@@ -31,69 +34,42 @@ class Add
         unset($data['header']);
         unset($data['file']);
         $products = [];
-        foreach ($data as $supply)
-        {
-            if(isset($supply['name']) && isset($supply['articul']))
-            {
-                $product = new Product();
-                $product->setName($supply['name']);
-                $product->setQuantity($supply['quantity']);
-                $product->setPrice($supply['price']);
-                $product->setUpc($supply['upc']);
-                $product->setArticul($supply['articul']);
-                $product->setSync(false);
-                $this->em->persist($product);
-                $products[] = $product;
+        foreach ($data as $supplyProduct) {
+            if(isset($supplyProduct['name']) && isset($supplyProduct['articul'])) {
+
+                $products[] = $this->em->getRepository(Product::class)->addProductFromSupply($supplyProduct);
             }
-            else
-            {
+            else {
                 return 0;
             }
         }
-
-        if($files)
-        {
-            $raw = '';
+        if($files) {
             foreach ($files as $file)
             {
-                if ($file instanceof UploadedFile)
-                {
-                    $raw .= file_get_contents($file->getPathname());
-
-                }
+                $supplyFromCsv = $this->csvToArray(file_get_contents($file->getPathname()));
             }
-            $supplyFromCsv = $this->csvToArray($raw);
-            unset($supplyFromCsv[0]);
-            foreach ($supplyFromCsv as $productFromCsv)
-            {
-                if(isset($productFromCsv[0]))
-                {
-                    var_dump($productFromCsv[0]);
-                    $NProduct = new Product();
-                    $NProduct->setName($productFromCsv[2]);
-                    $NProduct->setQuantity($productFromCsv[3]);
-                    $NProduct->setArticul($productFromCsv[0]);
-                    $NProduct->setUpc($productFromCsv[1]);
-                    $NProduct->setDescription($productFromCsv[9]);
-                    $NProduct->setPrice(324);
-                    $this->em->persist($NProduct);
-                    $products[] = $NProduct;
+            foreach ($supplyFromCsv as $productFromCsv) {
+                if(isset($productFromCsv['article'])) {
+                    if ($productFromCsv['article'])
+                    {
+                        $NProduct = $this->em->getRepository(Product::class)->addProductFromSupply($productFromCsv);
+                        $products[] = ['product' => $NProduct, 'quantity' => $productFromCsv['quantity'] ?? null];
+                    }
                 }
             }
         }
         if(!empty($products))
         {
             $supply = new Supply();
-            $supply->setSync(false);
             $supply->setSender($header['sender']);
             $supply->setRecipient($header['recipient']);
             $supply->setDate(new \DateTime());
             $supply->setContract($header['contract']);
+            $this->em->persist($supply);
             foreach ($products as $product)
             {
-                $supply->addProduct($product);
+                $this->em->getRepository(SupplyProduct::class)->createSupplyProduct($supply, $product['product'], $product['quantity']);
             }
-            $this->em->persist($supply);
             $this->em->flush();
         }
         return 1;
@@ -150,22 +126,15 @@ class Add
         $this->em->flush();
     }
 
-    public function csvToArray($csv)
+    public function csvToArray($file)
     {
-        $lines = explode("\n", $csv);
-        $data = array();
-        foreach ($lines as $line) {
-
-            $row = array();
-
-            foreach (str_getcsv($line) as $field)
-                $row[] = $field;
-
-            $row = array_filter($row);
-
-            $data[] = $row;
-        }
-        return $data;
+        $context = [
+            CsvEncoder::DELIMITER_KEY => ';',
+            CsvEncoder::ENCLOSURE_KEY => '"',
+            CsvEncoder::ESCAPE_CHAR_KEY => '\\',
+            CsvEncoder::KEY_SEPARATOR_KEY => ',',
+        ];
+        return $this->serializer->decode($file, 'csv', $context);
     }
 
     public function syncToEbay($products)
@@ -234,8 +203,8 @@ class Add
         $sale->setCreateAt($data['createAt']);
         $sale->setCurrency($data['currency']);
         $sale->setPrice($data['price']);
-        $sale->setPurchase($data['purchase']);
-        $sale->setOrderNumber($data['orderNumber']);
+        $sale->setPurchase($data['purchase'] ?? null);
+        $sale->setOrderNumber($data['orderNumber'] ?? null);
         $sale->setStatus('sold');
         $sale->setPlatform($data['platform']);
         $product->setQuantity($product->getQuantity() - $data['quantity']);

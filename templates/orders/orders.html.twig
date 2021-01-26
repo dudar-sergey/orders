@@ -28,13 +28,20 @@
                         <th scope="col">ID заказа</th>
                         <th scope="col">Покупатель</th>
                         <th scope="col">Сумма заказа</th>
-                        <th scope="col">Оплата</th>
+                        <th scope="col">Статус</th>
                         <th scope="col">Карточка</th>
                         <th scope="col">Дата заказа</th>
+                        <th scope="col">Оплата</th>
                         </thead>
                         <tbody>
                         {% for order in orders %}
-                            <tr>
+                            <tr data-id="{{ order.id }}"
+                                {% if order.status != null %}
+                                    {% if(order.status.value == 0)%} class="table-warning"
+                                    {% elseif(order.status.value == 1) %} class="table-success"
+                                    {% endif %}
+                                {% endif %}
+                            >
                                 <td>{{ order.eId ?? order.allegroId }}</td>
                                 <td>{{ order.buyer }}</td>
                                 <td>{{ order.price }}</td>
@@ -43,7 +50,16 @@
                                 {% else %}
                                     <td></td>
                                 {% endif %}
-                                <td>{{ order.date|date('d-m-Y') }}</td>
+                                <td>{{ order.date|date('d/m/y') }}</td>
+                                <td><select class="form-control payment-select">
+                                        <option selected value="-1">Не выбрано</option>
+                                        {% for paymentStatus in paymentStatuses %}
+                                            <option {% if(order.status.value is defined) %}
+                                                    {{ order.status.value == paymentStatus.value ? 'selected': ''}}
+                                                    {% endif %}
+                                                    value="{{ paymentStatus.id }}">{{ paymentStatus.name }}</option>
+                                        {% endfor %}
+                                    </select></td>
                             </tr>
                         {% endfor %}
                         </tbody>

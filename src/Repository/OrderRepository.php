@@ -65,7 +65,7 @@ class OrderRepository extends ServiceEntityRepository
     public function findAllByDate()
     {
         return $this->createQueryBuilder('o')
-            ->orderBy('o.date')
+            ->orderBy('o.date', 'desc')
             ->getQuery()
             ->getResult()
             ;

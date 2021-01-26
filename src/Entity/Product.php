@@ -45,11 +45,6 @@ class Product
     private $sync;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Supply::class, inversedBy="products")
-     */
-    private $supply;
-
-    /**
      * @ORM\Column(type="string", length=1000, nullable=true)
      */
     private $eId;
@@ -134,7 +129,22 @@ class Product
      */
     private $ebayOffer;
 
-    public function __toString()
+    /**
+     * @ORM\OneToMany(targetEntity=SupplyProduct::class, mappedBy="product")
+     */
+    private $supplyProducts;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Price::class, mappedBy="product", cascade={"persist", "remove"})
+     */
+    private $prices;
+
+    /**
+     * @ORM\Column(type="string", length=1000, nullable=true)
+     */
+    private $allegroTitle;
+
+    public function __toString(): string
     {
         return $this->getArticul().' '.$this->getName();
     }
@@ -144,6 +154,7 @@ class Product
         $this->analogs = new ArrayCollection();
         $this->kitProducts = new ArrayCollection();
         $this->images = new ArrayCollection();
+        $this->supplyProducts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -207,18 +218,6 @@ class Product
     public function setSync(?bool $sync): self
     {
         $this->sync = $sync;
-
-        return $this;
-    }
-
-    public function getSupply(): ?Supply
-    {
-        return $this->supply;
-    }
-
-    public function setSupply(?Supply $supply): self
-    {
-        $this->supply = $supply;
 
         return $this;
     }
@@ -462,6 +461,73 @@ class Product
         if ($ebayOffer->getProduct() !== $newProduct) {
             $ebayOffer->setProduct($newProduct);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SupplyProduct[]
+     */
+    public function getSupplyProducts(): Collection
+    {
+        return $this->supplyProducts;
+    }
+
+    public function addSupplyProduct(SupplyProduct $supplyProduct): self
+    {
+        if (!$this->supplyProducts->contains($supplyProduct)) {
+            $this->supplyProducts[] = $supplyProduct;
+            $supplyProduct->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSupplyProduct(SupplyProduct $supplyProduct): self
+    {
+        if ($this->supplyProducts->removeElement($supplyProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($supplyProduct->getProduct() === $this) {
+                $supplyProduct->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getPrices(): ?Price
+    {
+        return $this->prices;
+    }
+
+    public function setPrices(?Price $prices): self
+    {
+        $this->prices = $prices;
+
+        // set (or unset) the owning side of the relation if necessary
+        $newProduct = null === $prices ? null : $this;
+        if ($prices->getProduct() !== $newProduct) {
+            $prices->setProduct($newProduct);
+        }
+
+        return $this;
+    }
+
+    public function addQuantity($quantity): self
+    {
+        $this->quantity += $quantity;
+
+        return $this;
+    }
+
+    public function getAllegroTitle(): ?string
+    {
+        return $this->allegroTitle;
+    }
+
+    public function setAllegroTitle(?string $allegroTitle): self
+    {
+        $this->allegroTitle = $allegroTitle;
 
         return $this;
     }

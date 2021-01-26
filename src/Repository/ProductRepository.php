@@ -5,10 +5,10 @@ namespace App\Repository;
 use App\Entity\AllegroOffer;
 use App\Entity\Images;
 use App\Entity\Product;
+use App\Entity\ProductGroup;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Validator\Constraints\All;
 
 /**
  * @method Product|null find($id, $lockMode = null, $lockVersion = null)
@@ -43,21 +43,22 @@ class ProductRepository extends ServiceEntityRepository
         ;
     }
 
+    /* Если товар пришел из аллегро */
     public function createProduct($data)
     {
 
-        $article = $data['article'];
-        $img = $data['img'];
-        $name = $data['name'];
-        $price = $data['price'];
-        $quantity = $data['quantity'];
-        $allegroOffer = $data['allegroOffer'];
+        $article = $data['article'] ? $data['article']: null;
+        $img = $data['img'] ? $data['img']: null;
+        $name = $data['name'] ? $data['name']: null;
+        $price = $data['price'] ? $data['price']: null;
+        $quantity = $data['quantity'] ? $data['quantity']: null;
+        $allegroOffer = $data['allegroOffer'] ? $data['allegroOffer']: null;
 
         $product = $this->findOneBy(['articul' => $data['article']]);
         if(!$product) {
             $product = new Product();
             $image = new Images();
-            $image->setUrl($data['img']);
+            $image->setUrl($img);
             $this->em->persist($image);
             $product->addImage($image);
         }
@@ -78,5 +79,46 @@ class ProductRepository extends ServiceEntityRepository
         $product->setArticul($article);
         $this->em->persist($product);
         $this->em->flush();
+    }
+
+    /* Если товра пришел из поставки, в будущем я соединю эти функции, а то выглядит не очень */
+    public function addProductFromSupply($data): Product
+    {
+        $article = isset($data['article']) ? $data['article']: null;
+        $name = isset($data['name']) ? $data['name']: null;
+        $quantity = isset($data['quantity']) ? $data['quantity']: null;
+        $upc = isset($data['upc']) ? $data['upc']: null;
+        $price = isset($data['price']) ? $data['price']: null;
+        $group = isset($data['group']) ? $data['group']: null;
+        $auto = isset($data['auto']) ? $data['auto']: null;
+        if ($group)
+        {
+            $group = $this->em->getRepository(ProductGroup::class)->find($group);
+        }
+
+        if($product = $this->findOneBy(['articul' => $article]))
+        {
+            $quantity ?? $product->addQuantity($quantity);
+
+        }
+        else{
+            $product = new Product();
+            $product
+                ->setName($name)
+                ->setArticul($article)
+                ->setQuantity($quantity)
+                ->setPrice($price)
+                ->setUpc($upc)
+                ->setAuto($auto)
+                ->setProductGroup($group)
+            ;
+        }
+        if($article)
+        {
+            $this->em->persist($product);
+            $this->em->flush();
+        }
+
+        return $product;
     }
 }

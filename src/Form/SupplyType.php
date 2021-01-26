@@ -21,7 +21,7 @@ class SupplyType extends AbstractType
                 'label' => false,
                 'required' => false
             ])
-            ->add('articul', TextType::class, [
+            ->add('article', TextType::class, [
                 'attr' => [
                     'class' => 'form-control'
                 ],
