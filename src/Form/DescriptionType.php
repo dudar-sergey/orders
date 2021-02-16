@@ -16,39 +16,51 @@ class DescriptionType extends AbstractType
         $builder
             ->add('enName', TextType::class, [
                 'attr' => [
-                    'class' => 'form-control mb-1'
+                    'class' => 'form-control mb-1',
+                    'placeholder' => 'Заголовок группы'
                 ],
-                'label' => 'Английский'
+                'label' => 'Английский',
+                'required' => false,
             ])
             ->add('enDes', TextareaType::class, [
                 'attr' => [
-                    'class' => 'form-control mb-3'
+                    'class' => 'form-control mb-3',
+                    'placeholder' => 'Универсальное описание'
                 ],
                 'label' => false,
+                'required' => false,
             ])
             ->add('plName', TextType::class, [
                 'attr' => [
-                    'class' => 'form-control mb-1'
+                    'class' => 'form-control mb-1',
+                    'placeholder' => 'Заголовок группы'
                 ],
-                'label' => 'Польский'
+                'label' => 'Польский',
+                'required' => false
             ])
             ->add('plDes', TextareaType::class, [
                 'attr' => [
-                    'class' => 'form-control mb-3'
+                    'class' => 'form-control mb-3',
+                    'placeholder' => 'Универсальное описание'
                 ],
                 'label' => false,
+                'required' => false
             ])
             ->add('frName', TextType::class, [
                 'attr' => [
-                    'class' => 'form-control mb-1'
+                    'class' => 'form-control mb-1',
+                    'placeholder' => 'Заголовок группы'
                 ],
-                'label' => 'Французский'
+                'label' => 'Французский',
+                'required' => false
             ])
             ->add('frDes', TextareaType::class, [
                 'attr' => [
-                    'class' => 'form-control mb-3'
+                    'class' => 'form-control mb-3',
+                    'placeholder' => 'Универсальное описание'
                 ],
                 'label' => false,
+                'required' => false
             ])
         ;
     }

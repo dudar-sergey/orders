@@ -71,7 +71,7 @@ class MainController extends AbstractController
 
         if ($request->get('search'))
         {
-            $products = $this->em->getRepository(Product::class)->findByArticleAndName($request->get('search'));
+            $products = $this->em->getRepository(Product::class)->findByArticleAndName($request->get('search'), $request->get('search'));
             $pages = 1;
         }
 
@@ -103,17 +103,26 @@ class MainController extends AbstractController
     }
 
     /**
-     * @Route("/products/createOfferAllegro/{productId}")
+     * @Route("/products/createOfferAllegro/{productId}", name="createAllegroOffer")
      * @param $productId
+     * @param Request $request
      * @return Response
      * @throws \Exception
      */
-    public function createOfferAllegro($productId): Response
+    public function createOfferAllegro($productId, Request $request): Response
     {
         $product = $this->em->getRepository(Product::class)->find($productId);
         if($product)
         {
             $form = $this->createForm(CreateOfferType::class);
+            $form->handleRequest($request);
+
+            if($form->isSubmitted() && $form->isValid())
+            {
+                return $this->redirectToRoute('cardItem', [
+                    'itemId' => $productId
+                ]);
+            }
 
             $forRender = [
                 'form' => $form->createView(),
@@ -344,6 +353,7 @@ class MainController extends AbstractController
         if($form->isSubmitted() && $form->isValid())
         {
             $product->setName($form->getData()->getName());
+            $product->setQuantity($form->getData()->getQuantity());
             $this->em->flush();
             return $this->redirectToRoute('products');
         }
@@ -475,7 +485,12 @@ class MainController extends AbstractController
      */
     public function syncFromAllegro(): RedirectResponse
     {
-        $this->am->getOffersFromAllegro();
+        try{
+            $this->am->getOffersFromAllegro();
+
+        }catch (\Exception $e){
+            $this->addFlash('notice', 'Ошибка синхронизации');
+        }
         return $this->redirectToRoute('products');
     }
 

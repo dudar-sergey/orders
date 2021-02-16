@@ -26,7 +26,7 @@ class AllegroUserManager
     {
         $this->session = $session;
         $this->client = HttpClient::create([
-            'proxy'=>'http://wNogF3:k1VdVC@185.183.161.196:8000',
+            //'proxy'=>'http://wNogF3:k1VdVC@185.183.161.196:8000',
         ]);
         $this->em = $em;
     }
@@ -108,9 +108,9 @@ class AllegroUserManager
     }
 
 
-    public function addOfferToAllegro(Product $product)
+    public function addOfferToAllegro(Product $product): JsonResponse
     {
-        $name = $product->getDes()->getPlName().' '.$product->getAuto();
+        $name = $product->getAllegroTitle();
         $description = str_ireplace('{auto}', $product->getAuto(), $product->getDes()->getPlDes());
         $categoryId = '257947';
         $upc = $product->getUpc();
@@ -304,24 +304,23 @@ class AllegroUserManager
                     'Accept' => 'application/vnd.allegro.public.v1+json',
                 ],
             ])->getContent();
+            $productRep = $this->em->getRepository(Product::class);
+            $response = json_decode($response, true);
+            foreach ($response['offers'] as $offer)
+            {
+                $productRep->createProduct([
+                    'name' => $offer['name'],
+                    'article'  =>$offer['external']['id'],
+                    'img' => $offer['primaryImage']['url'],
+                    'price'  => $offer['sellingMode']['price']['amount'],
+                    'quantity' => $offer['stock']['available'],
+                    'allegroOffer' => $offer['id'],
+                ]);
+            }
         }
         catch (\Exception $e)
         {
             var_dump($e->getMessage());
-        }
-
-        $productRep = $this->em->getRepository(Product::class);
-        $response = json_decode($response, true);
-        foreach ($response['offers'] as $offer)
-        {
-            $productRep->createProduct([
-                'name' => $offer['name'],
-                'article'  =>$offer['external']['id'],
-                'img' => $offer['primaryImage']['url'],
-                'price'  => $offer['sellingMode']['price']['amount'],
-                'quantity' => $offer['stock']['available'],
-                'allegroOffer' => $offer['id'],
-            ]);
         }
     }
 

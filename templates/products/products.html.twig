@@ -1,76 +1,92 @@
 {% extends 'base.html.twig' %}
 {% block body %}
-    <div class="content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="form-group m-3 text-right">
-                    <form action="{{ path('products') }}" method="post" class="form-inline">
-                    <input type="text" class="form-control pull-right" id="search" placeholder="Поиск по таблице" name="search" autocomplete="off">
-                    <button class="btn btn-outline-secondary ml-2" type="submit">Поиск</button>
-                    </form>
+    <div class="container">
+        <div class="row mt-3">
+            <div class="col-xl-4 p-0">
+                <input type="text" class="form-control pull-right" id="search" placeholder="Поиск по таблице"
+                       name="search" autocomplete="off">
+            </div>
+        </div>
+        <div class="row mt-3">
+                <a href="{{ path('syncFromEbay') }}">
+                    <button class="btn btn-primary mr-3"><i class="fas fa-sync"></i> Получить из eBay</button>
+                </a>
+                <a href="{{ path('syncFromAllegro') }}">
+                    <button class="btn btn-primary mr-3"><i class="fas fa-sync"></i> Получить из allegro</button>
+                </a>
+                <a href="{{ path('createKit') }}">
+                    <button class="btn btn-primary mr-3"><i class="fas fa-cogs"></i> Создать комплект</button>
+                </a>
+            <div class="col-xl-1 p-0">
+                <select class="count-products-select form-control">
+                    <option value="10" {{ limit == 10 ? 'selected': '' }}>10</option>
+                    <option value="25" {{ limit == 25 ? 'selected': '' }}>25</option>
+                    <option value="50" {{ limit == 50 ? 'selected': '' }}>50</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="card" id="mytable">
+                <div class="card-body">
+                    <table class="tsort table table-hover">
+                        <thead>
+                        <th scope="col">Изображение</th>
+                        <th scope="col">Ариткул</th>
+                        <th scope="col">UPC</th>
+                        <th scope="col">Название</th>
+                        <th scope="col">Стоимость</th>
+                        <th scope="col">Количество</th>
+                        <th>Карточка</th>
+                        </thead>
+                        <tbody>
+                        {% for product in products %}
+                            <tr>
+                                <td><img src="{{ product.images.first.url ?? 'https://kknd26.ru/images/no_photo.png' }}"
+                                         width="150" height="100" alt=""></td>
+                                <td>{{ product.articul }}</td>
+                                <td>{{ product.upc }}</td>
+                                <td><a href="{{ path('cardItem', {'itemId': product.id}) }}">{{ product.name }}</a></td>
+                                <td>
+                                    {{ product.price }}
+                                </td>
+                                <td>{{ product.quantity }}</td>
+                                <td><a href="{{ path('cardItem', {'itemId': product.id}) }}">Карточка</a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                <div class="col-md-12">
-                    <a href="{{ path('syncFromEbay') }}">
-                        <button class="btn btn-primary mb-3"><i class="fas fa-sync"></i> Синхронизировать из eBay</button>
-                    </a>
-                    <a href="{{ path('syncFromAllegro') }}">
-                        <button class="btn btn-primary mb-3"><i class="fas fa-sync"></i> Синхронизировать из allegro</button>
-                    </a>
-                    <a href="{{ path('createKit') }}">
-                        <button class="btn btn-primary mb-3"><i class="fas fa-cogs"></i> Создать комплект</button>
-                    </a>
-                    <select class="count-products-select">
-                        <option value="10" {{ limit == 10 ? 'selected': '' }}>10</option>
-                        <option value="25" {{ limit == 25 ? 'selected': '' }}>25</option>
-                        <option value="50" {{ limit == 50 ? 'selected': '' }}>50</option>
-                    </select>
-                    <div class="card striped-with-hover">
-                        <div class="card-body table-full-width table-responsive">
-                            <div class="card-body table-full-width table-responsive">
-                                <table class="tsort table table-hover table-striped" id="mytable">
-                                    <thead>
-                                    <th scope="col">Изображение</th>
-                                    <th scope="col">Ариткул</th>
-                                    <th scope="col">UPC</th>
-                                    <th scope="col">Название</th>
-                                    <th scope="col">Стоимость</th>
-                                    <th scope="col">Количество</th>
-                                    <th>Карточка</th>
-                                    </thead>
-                                    <tbody>
-                                    {% for product in products %}
-                                        <tr>
-                                            <td><img src="{{ product.images.first.url ?? 'https://kknd26.ru/images/no_photo.png' }}" width="150" height="100" alt=""></td>
-                                            <td>{{ product.articul }}</td>
-                                            <td>{{ product.upc }}</td>
-                                            <td><a href="{{ path('cardItem', {'itemId': product.id}) }}">{{ product.name }}</a></td>
-                                            <td>
-                                                {{ product.price}}
-                                            </td>
-                                            <td>{{ product.quantity }}</td>
-                                            <td><a href="{{ path('cardItem', {'itemId': product.id}) }}">Карточка</a></td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="row justify-content-center">
-                            <nav>
-                                <ul class="pagination">
-                                    <li class="page-item"><a class="page-link" href="?p=1"><<</a></li>
-                                    {% if currentPage > 2 %}<li class="page-item"><a class="page-link" href="?p={{ currentPage - 2 }}">{{ currentPage - 2 }}</a></li>{% endif %}
-                                    {% if currentPage > 1 %}<li class="page-item"><a class="page-link" href="?p={{ currentPage - 1 }}">{{ currentPage - 1 }}</a></li>{% endif %}
-                                    <li class="page-item active"><a class="page-link" href="?p={{ currentPage }}">{{ currentPage }}</a></li>
-                                    {% if currentPage < pages %}<li class="page-item"><a class="page-link" href="?p={{ currentPage + 1 }}">{{ currentPage + 1 }}</a></li>{% endif %}
-                                    {% if currentPage < pages - 1 %}<li class="page-item"><a class="page-link" href="?p={{ currentPage + 2 }}">{{ currentPage + 2 }}</a></li>{% endif %}
-                                    <li class="page-item"><a class="page-link" href="?p={{ pages }}">>></a></li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
+                <div class="row justify-content-center">
+                    <nav>
+                        <ul class="pagination" id="products-pagination">
+                            <li class="page-item"><a class="page-link" href="?p=1"><<</a></li>
+                            {% if currentPage > 2 %}
+                                <li class="page-item"><a class="page-link"
+                                                         href="?p={{ currentPage - 2 }}">{{ currentPage - 2 }}</a>
+                                </li>{% endif %}
+                            {% if currentPage > 1 %}
+                                <li class="page-item"><a class="page-link"
+                                                         href="?p={{ currentPage - 1 }}">{{ currentPage - 1 }}</a>
+                                </li>{% endif %}
+                            <li class="page-item active"><a class="page-link"
+                                                            href="?p={{ currentPage }}">{{ currentPage }}</a></li>
+                            {% if currentPage < pages %}
+                                <li class="page-item"><a class="page-link"
+                                                         href="?p={{ currentPage + 1 }}">{{ currentPage + 1 }}</a>
+                                </li>{% endif %}
+                            {% if currentPage < pages - 1 %}
+                                <li class="page-item"><a class="page-link"
+                                                         href="?p={{ currentPage + 2 }}">{{ currentPage + 2 }}</a>
+                                </li>{% endif %}
+                            <li class="page-item"><a class="page-link" href="?p={{ pages }}">>></a></li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('/assets/myJs/product.js') }}"></script>
 {% endblock %}

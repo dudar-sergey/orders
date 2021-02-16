@@ -11,10 +11,10 @@ use App\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class Api
 {
@@ -152,7 +152,7 @@ class Api
                     $order->setStatus($payment);
                     if ($payment->getId() == 1)
                     {
-                        $this->add->addSale($this->getDataForSaleFromOrder());
+                        //$this->add->addSale($this->getDataForSaleFromOrder($order));
                     }
                     $this->em->flush();
                     return $this->response('Ok');

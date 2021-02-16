@@ -1,55 +1,60 @@
 {% extends 'base.html.twig' %}
 {% block body %}
     <a href="{{ path('products') }}" class="m-3">Назад</a>
-    <div class="container-fluid">
-        <div class="row m-3 justify-content-end">
-            <a href="{{ path('deleteProduct', {'productId': product.id}) }}"><button type="button" onclick="return confirm ('Точно хотите удалить этот товар?');" class="btn btn-outline-danger">Удалить этот товар со склада</button></a>
-        </div>
-    </div>
     <div class="container">
-        <div class="row mt-5 justify-content-center">
+        <div class="row justify-content-center">
             <h3>Товар {{ product.name }}</h3>
         </div>
         <div class="row mt-3 justify-content-center">
-            {{ form_start(form, {'attr': {'class': 'w-100'}}) }}
-            <label for="art">Ариикул</label><input type="text" readonly value="{{ product.articul }}" class="form-control mt-3 mb-3" id="art">
-            {{ form_row(form.name, {'attr': {'class': 'form-control mt-3 mb-3'}}) }}
-            <label for="price">Цена</label><input type="text" readonly value="{{ product.price }}" class="form-control mt-3 mb-3" id="price">
-            <button type="submit" class="btn btn-outline-secondary" name="submit">Обновить</button>
-            {{ form_end(form) }}
-        </div>
-    </div>
-        <div class="container-fluid">
-            <div class="row mt-3">
-                <div class="col-md-12">
-                    <div class="card striped-with-hover">
-                        <div class="card-header text-center">
-                            <h2>Информация о публикациях</h2>
-                        </div>
-                        <div class="card-body table-full-width table-responsive">
-                            <table class="tsort table table-hover table-striped" id="mytable">
-                                <thead>
-                                    <th>Площадка</th>
-                                    <th>Статус</th>
-                                    <th>Номер на площадке</th>
-                                </thead>
-                                <tbody>
-                                    <td>Allegro</td>
-                                    <td>{% if(product.allegroOffer != null) %}
-                                            <select data-id="{{ product.id }}" class="form-control">
-                                                <option value="0" {{  product.allegroOffer.status == 0 ? 'selected': '' }}>Не активен</option>
-                                                <option value="1" {{  product.allegroOffer.status == 1 ? 'selected': '' }}>Активен</option>
-                                            </select>
-                                        {% else %}
-                                            Не выложен
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ product.allegroOffer.allegroId ?? 'Не выложен' }}</td>
-                                </tbody>
-                            </table>
-                        </div>
+            <div class="col xl-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        {{ form_start(form, {'attr': {'class': 'w-100'}}) }}
+                        <label for="art">Артикул</label><input type="text" readonly value="{{ product.articul }}" class="form-control mt-3 mb-3" id="art">
+                        {{ form_row(form.name, {'attr': {'class': 'form-control mt-3 mb-3'}}) }}
+                        {{ form_row(form.quantity, {'attr': {'class': 'form-control mt-3 mb-3'}}) }}
+                        <label for="price">Цена</label><input type="text" readonly value="{{ product.price }}" class="form-control mt-3 mb-3" id="price">
+                        <button type="submit" class="btn btn-outline-secondary" name="submit">Обновить</button>
+                        {{ form_end(form) }}
                     </div>
                 </div>
             </div>
+            <div class="col-xl-6">
+                <div class="card striped-with-hover shadow">
+                    <div class="card-header text-center">
+                        <h2>Информация о публикациях</h2>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover table-bordered" id="mytable">
+                            <thead>
+                            <th>Площадка</th>
+                            <th>Статус</th>
+                            <th>Номер на площадке</th>
+                            </thead>
+                            <tbody>
+                            <td>Allegro</td>
+                            <td>{% if(product.allegroOffer != null) %}
+                                    <select data-id="{{ product.id }}" class="form-control">
+                                        <option value="0" {{  product.allegroOffer.status == 0 ? 'selected': '' }}>Не активен</option>
+                                        <option value="1" {{  product.allegroOffer.status == 1 ? 'selected': '' }}>Активен</option>
+                                    </select>
+                                {% else %}
+                                    Не выложен
+                                {% endif %}
+                            </td>
+                            {% if(product.allegroOffer == null) %}
+                                <td>Не выложен <a href="{{ path('createAllegroOffer', {'productId': product.id}) }}">(Выложить)</a></td>
+                            {% else %}
+                                <td>{{ product.allegroOffer.allegroId }}</td>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row m-2 justify-content-end">
+                    <a href="{{ path('deleteProduct', {'productId': product.id}) }}"><button type="button" onclick="return confirm ('Точно хотите удалить этот товар?');" class="btn btn-outline-danger">Удалить этот товар со склада</button></a>
+                </div>
+            </div>
         </div>
+    </div>
 {% endblock %}

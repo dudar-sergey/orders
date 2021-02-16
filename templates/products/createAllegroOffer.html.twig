@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 {% block body %}
     <div class="container justify-content-center">
-        <h3>Создание оффера Аллегро {{ product.name }} {{ product.auto ?? 'Авто не заполнено' }}</h3>
+        <h3>Создание оффера Аллегро {{ product.name }}</h3>
         {{ form_start(form, {'attr': {'class': 'w-100'}}) }}
         {{ form_row(form.deliveryMethod) }}
         <button class="btn btn-outline-success mt-3" type="submit">Создать</button>

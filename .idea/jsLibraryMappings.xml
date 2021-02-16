@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <file url="PROJECT" libraries="{8289a35b8d, jquery, vue}" />
+    <file url="PROJECT" libraries="{8289a35b8d, bootstrap-select, jquery, vue}" />
   </component>
 </project>

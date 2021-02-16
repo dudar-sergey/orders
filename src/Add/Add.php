@@ -207,12 +207,16 @@ class Add
         $sale->setOrderNumber($data['orderNumber'] ?? null);
         $sale->setStatus('sold');
         $sale->setPlatform($data['platform']);
-        $product->setQuantity($product->getQuantity() - $data['quantity']);
+        //$product->setQuantity($product->getQuantity() - $data['quantity']);
         $this->em->persist($sale);
         $this->em->persist($product);
         $this->em->flush();
     }
 
+    /**
+     * @param Product[] $products
+     * @param $options
+     */
     public function addKitProduct($products, $options)
     {
         $newProduct = new Product();
@@ -222,9 +226,11 @@ class Add
             foreach ($products as $product)
             {
                 $newProduct->addKitProduct($product);
-                $name.= $product->getName().' + ';
+                $newProduct->setAuto($product->getAuto());
+                $name.= $product->getDes()->getPlName().' + ';
             }
             $name = mb_strrchr($name, ' + ', true);
+            $name .= ' '.$products[0]->getAuto();
             $newProduct->setArticul($options['article']);
             $newProduct->setPrice($options['price']);
             $newProduct->setQuantity($options['quantity']);

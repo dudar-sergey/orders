@@ -1,12 +1,14 @@
 window.addEventListener('load', () => {
     const paymentSelects = [...document.getElementsByClassName('payment-select')]
-    const countSelects = [...document.getElementsByClassName('count-products-select')]
-
     paymentSelects.forEach(select => select.addEventListener('input', handleSelect))
-    countSelects.forEach(select => select.addEventListener('input', handleCountSelect))
+    const buttonsCard = [...document.getElementsByClassName('modalCard')]
+    buttonsCard.forEach(button => button.addEventListener('click', function () {
+        $('#myModal').modal('show')
+        $('#modal-body').text(button.getAttribute('data-id'))
+    }))
 })
 
-function handleSelect({ target }) {
+function handleSelect({target}) {
     const row = target.closest('tr')
     const paymentStatusId = target.value
     const orderId = row.dataset.id
@@ -22,24 +24,11 @@ function handleSelect({ target }) {
     }
 }
 
-function handleCountSelect({ target }){
-    const value = target.value
-
-    return fetch('/api/change_limit_for_products?limit='+value, {
-        method: 'GET',
-    })
-        .then(() => redirect('/products'))
-}
-
-function redirect(source){
-    window.location.href = source
-}
-
 function eraseRowColor(row) {
     row.classList.remove('table-success', 'table-danger', 'table-warning')
 }
 
-function fillWarning(row){
+function fillWarning(row) {
     eraseRowColor(row)
     row.classList.add('table-warning')
 }
@@ -54,7 +43,7 @@ function fillError(row) {
     row.classList.add('table-danger')
 }
 
-function sendRequest (paymentStatusId, orderId) {
+function sendRequest(paymentStatusId, orderId) {
     return fetch('/api/change_order_status', {
         method: 'POST',
         body: JSON.stringify({

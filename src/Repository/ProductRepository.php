@@ -27,20 +27,36 @@ class ProductRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param $value
+     * @param null $name
+     * @param null $article
+     * @param null $limit
+     * @param null $offset
      * @return Product[] Returns an array of Product objects
      */
 
-    public function findByArticleAndName(string $value): array
+    public function findByArticleAndName($name = null, $article = null, $limit = null,  $offset = null): array
     {
-        return $this->createQueryBuilder('o')
-            ->where('o.articul LIKE :search')
-            ->orWhere('o.name LIKE :search')
-            ->orWhere('o.upc LIKE :search')
-            ->setParameter('search', '%'.$value.'%')
-            ->getQuery()
-            ->getResult()
+        if(!$name && !$article) {
+            return $this->findBy([],[], $limit, $offset);
+        }
+        $query = $this->createQueryBuilder('o');
+        if($article)
+        {
+            $query->where('o.articul LIKE :article')->setParameter('article', '%'.$article.'%')
+            ;
+        }
+        if($name)
+        $query->orWhere('o.name LIKE :name')->setParameter('name', '%'.$name.'%')
         ;
+
+        if($limit)
+        {
+            $query
+                ->setMaxResults($limit);
+        }
+        if($offset)
+            $query->setFirstResult($offset);
+        return $query->getQuery()->getResult();
     }
 
     /* Если товар пришел из аллегро */
@@ -61,6 +77,9 @@ class ProductRepository extends ServiceEntityRepository
             $image->setUrl($img);
             $this->em->persist($image);
             $product->addImage($image);
+            $product->setArticul($article);
+            $product->setName($name);
+            $product->setPrice($price);
         }
 
         $newAllegroOffer = $this->em->getRepository(AllegroOffer::class)->findOneBy(['allegroId' => $allegroOffer]);
@@ -68,15 +87,11 @@ class ProductRepository extends ServiceEntityRepository
         {
             $newAllegroOffer = new AllegroOffer();
             $newAllegroOffer->setAllegroId($allegroOffer);
-            $newAllegroOffer->setStatus('ACTIVE');
+            $newAllegroOffer->setStatus('1');
             $this->em->persist($newAllegroOffer);
             $product->setAllegroOffer($newAllegroOffer);
         }
-
-        $product->setName($name);
-        $product->setPrice($price);
         $product->setQuantity($quantity);
-        $product->setArticul($article);
         $this->em->persist($product);
         $this->em->flush();
     }
@@ -98,8 +113,10 @@ class ProductRepository extends ServiceEntityRepository
 
         if($product = $this->findOneBy(['articul' => $article]))
         {
-            $quantity ?? $product->addQuantity($quantity);
-
+            if($quantity)
+            {
+                $product->addQuantity($quantity);
+            }
         }
         else{
             $product = new Product();

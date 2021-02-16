@@ -2,15 +2,6 @@
 {% block body %}
     <div class="container-fluid">
         <div class="row">
-            <div class="col-xl-12">
-                {% for message in app.flashes('notice') %}
-                    <div class="alert alert-danger">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="row">
             <a href="{{ path('syncOrdersFromEbay') }}" class="m-3">
                 <button class="btn btn-primary mb-3"><i class="fas fa-sync"></i> Синхронизировать из eBay</button>
             </a>
@@ -22,49 +13,82 @@
             </div>
         </div>
         <div class="card striped-with-hover">
-                <div class="card-body table-full-width">
-                    <table class="tsort table table-hover table-striped" id="mytable">
-                        <thead>
-                        <th scope="col">ID заказа</th>
-                        <th scope="col">Покупатель</th>
-                        <th scope="col">Сумма заказа</th>
-                        <th scope="col">Статус</th>
-                        <th scope="col">Карточка</th>
-                        <th scope="col">Дата заказа</th>
-                        <th scope="col">Оплата</th>
-                        </thead>
-                        <tbody>
-                        {% for order in orders %}
-                            <tr data-id="{{ order.id }}"
+            <div class="card-body table-full-width">
+                <table class="tsort table table-hover table-striped" id="mytable">
+                    <thead>
+                    <th scope="col">Товар</th>
+                    <th scope="col">Покупатель</th>
+                    <th scope="col">Сумма заказа</th>
+                    <th scope="col">Статус</th>
+                    <th scope="col">Карточка</th>
+                    <th scope="col">Дата заказа</th>
+                    <th scope="col">Оплата</th>
+                    </thead>
+                    <tbody>
+                    {% for order in orders %}
+                        <tr data-id="{{ order.id }}"
                                 {% if order.status != null %}
-                                    {% if(order.status.value == 0)%} class="table-warning"
+                                    {% if(order.status.value == 0) %} class="table-warning"
                                     {% elseif(order.status.value == 1) %} class="table-success"
                                     {% endif %}
                                 {% endif %}
-                            >
-                                <td>{{ order.eId ?? order.allegroId }}</td>
-                                <td>{{ order.buyer }}</td>
-                                <td>{{ order.price }}</td>
-                                <td>{{ order.payment }}</td>
-                                {% if(order.allegroId != null) %}<td><a href="{{ path('orderCard', {'orderId': order.allegroId}) }}">Карта</a></td>
-                                {% else %}
-                                    <td></td>
-                                {% endif %}
-                                <td>{{ order.date|date('d/m/y') }}</td>
-                                <td><select class="form-control payment-select">
-                                        <option selected value="-1">Не выбрано</option>
-                                        {% for paymentStatus in paymentStatuses %}
-                                            <option {% if(order.status.value is defined) %}
-                                                    {{ order.status.value == paymentStatus.value ? 'selected': ''}}
-                                                    {% endif %}
-                                                    value="{{ paymentStatus.id }}">{{ paymentStatus.name }}</option>
-                                        {% endfor %}
-                                    </select></td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                        >
+                            <td><b>{{ order.allegroOffer.product.name }}</b></td>
+                            <td>{{ order.buyer }}</td>
+                            <td>{{ order.price }}</td>
+                            <td>{{ order.payment }}</td>
+                            {#<td>
+                                <button class="modalCard btn" data-id="{{ order.id }}">Карта</button>
+                            </td> #}
+                            {% if(order.allegroId != null) %}
+                                <td><a href="{{ path('orderCard', {'orderId': order.allegroId}) }}">Карта</a></td>
+                            {% else %}
+                                <td></td>
+                            {% endif %}
+                            <td>{{ order.date|date('d/m/y') }}</td>
+                            <td><select class="form-control payment-select">
+                                    <option selected value="-1">Не выбрано</option>
+                                    {% for paymentStatus in paymentStatuses %}
+                                        <option {% if(order.status.value is defined) %}
+                                            {{ order.status.value == paymentStatus.value ? 'selected': '' }}
+                                        {% endif %}
+                                                value="{{ paymentStatus.id }}">{{ paymentStatus.name }}</option>
+                                    {% endfor %}
+                                </select></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body" id="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                <th>fsd</th>
+                                <th>fsd</th>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('/assets/myJs/order.js') }}"></script>
 {% endblock %}

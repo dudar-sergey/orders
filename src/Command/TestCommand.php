@@ -39,30 +39,18 @@ class TestCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $arg1 = $input->getArgument('arg1');
+        $products = $this->em->getRepository(Product::class)->findAll();
 
-
-        $file = file_get_contents('/Users/sergey/Downloads/groups.csv');
-
-        $array = $this->add->csvToArray($file);
-
-        foreach ($array as $item)
+        foreach ($products as $product)
         {
-            $article = $item['article'];
-            $groupName = $item['group'];
-            $group = $this->em->getRepository(Description::class)->findOneByPlName($groupName);
-            if(!$group)
+            if($product->getAllegroOffer() != null)
             {
-                $group = new Description();
-                $group
-                    ->setPlName($groupName);
-                $this->em->persist($group);
+                $product->setAllegroTitle($product->getName());
             }
-
-            $product = $this->em->getRepository(Product::class)->findOneBy(['articul' => $article]);
-
-            $product->setDes($group);
             $this->em->flush();
         }
+
+
         return Command::SUCCESS;
     }
 }

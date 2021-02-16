@@ -1,25 +1,53 @@
 {% extends 'base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/css/kitStyle.css') }}">
+{% endblock %}
 {% block body %}
     <a href="{{ path('products') }}" class="m-3">Назад</a>
-    <div id="app">
         <div class="container">
             <div class="row mt-5">
-                <div class="col-md-12">
-                    {{ form_start(form, {'attr': {'class': 'w-100'}}) }}
-                    {{ form_row(form.firstProduct) }}
-                    <div class="mt-3 mb-3">
-                        {{ form_row(form.article) }}
+                <div class="col-xl-6">
+                    <div class="card">
+                        <div class="card-body shadow">
+                            <h3>Добавьте товары для объединения</h3>
+                            <input type="text" class="form-control" id="search-select" placeholder="Поиск по имени">
+                            <table class="table text-justify">
+                                <thead>
+                                <th>Выбрать</th>
+                                <th>Название</th>
+                                </thead>
+                                <tbody id="table-body">
+
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="mt-3 mb-3">
-                        {{ form_row(form.price) }}
+                </div>
+                <div class="col-xl-6">
+                    <div class="card">
+                        <div class="card-body shadow">
+                            <h3>Введите характеристики товара</h3>
+                            <input class="form-control" id="article" type="text" placeholder="Введите артикул">
+                            <input class="form-control mt-3" id="price" type="text" placeholder="Введите цену нового товара">
+                            <input class="form-control mt-3" type="text" id="quantity" placeholder="Введите количество">
+                            <button class="btn btn-outline-primary mt-3" id="add-button">Добавить</button>
+                        </div>
                     </div>
-                    <div class="mt-3 mb-3">
-                        {{ form_row(form.quantity) }}
-                    </div>
-                    <button type="submit" name="submit" class="btn btn-outline-info">Отправить</button>
-                    {{ form_end(form) }}
                 </div>
             </div>
         </div>
-    </div>
+        <div class="toast" style="position: absolute; top: 20px; right: 20px;">
+            <div class="toast-header">
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body table-success">
+            </div>
+        </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/myJs/kitProduct.js') }}"></script>
 {% endblock %}

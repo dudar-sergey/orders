@@ -20,6 +20,12 @@ class ProductType extends AbstractType
                 ],
                 'label' => 'Название'
             ])
+            ->add('quantity', TextType::class, [
+                'attr' => [
+                    'class' => 'form-control'
+                ],
+                'label' => 'Количество'
+            ])
         ;
     }
 
