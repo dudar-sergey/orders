@@ -1951,7 +1951,6 @@ fieldset[disabled] .form-control {
     color: #9A9A9A;
 }
 
-.nav .nav-item .nav-link:hover,
 .nav .nav-item .nav-link:focus {
     background-color: transparent;
 }

@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="container">
+        <div class="row mt-3">
+            <div class="col-xl-10">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <div id="unload" class="nav-link active">Невыгруженные</div>
+                    </li>
+                    <li class="nav-item">
+                        <div id="n-active" class="nav-link">Неактивные</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-xl-10">
+                <table class="table text-center table-bordered">
+                    <thead>
+                    <th class="th-checkbox"><input type="checkbox" id="all"></th>
+                    <th class="product-img">Изображение</th>
+                    <th class="product-name">Имя товара</th>
+                    <th>Allegro</th>
+                    <th>Ebay</th>
+                    <th>Amazon</th>
+                    </thead>
+                    <tbody id="unload-table">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xl-2">
+                <button class="btn">Выгрузить отмеченное</button>
+                <button class="btn mt-3">Выгрузить в черновик</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/myJs/unloads.js') }}"></script>
+{% endblock %}

@@ -355,7 +355,7 @@ class MainController extends AbstractController
             $product->setName($form->getData()->getName());
             $product->setQuantity($form->getData()->getQuantity());
             $this->em->flush();
-            return $this->redirectToRoute('products');
+            return $this->redirectToRoute('cardItem', ['itemId' => $itemId]);
         }
         $forRender = [
             'product' => $product,

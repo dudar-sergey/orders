@@ -1,0 +1,13 @@
+{% if products is defined %}
+    {% for product in products %}
+        <tr>
+            <td class="th-checkbox"><input value="{{ product.id }}" type="checkbox"></td>
+            <td class="product-img"><img src="{{ product.images.first.url ?? 'https://kknd26.ru/images/no_photo.png' }}"
+                     width="150" height="100" alt=""></td>
+            <td class="product-name">{{ product.name }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    {% endfor %}
+{% endif %}

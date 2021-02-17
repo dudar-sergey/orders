@@ -34,27 +34,23 @@ class ProductRepository extends ServiceEntityRepository
      * @return Product[] Returns an array of Product objects
      */
 
-    public function findByArticleAndName($name = null, $article = null, $limit = null,  $offset = null): array
+    public function findByArticleAndName($name = null, $article = null, $limit = null, $offset = null): array
     {
-        if(!$name && !$article) {
-            return $this->findBy([],[], $limit, $offset);
+        if (!$name && !$article) {
+            return $this->findBy([], [], $limit, $offset);
         }
         $query = $this->createQueryBuilder('o');
-        if($article)
-        {
-            $query->where('o.articul LIKE :article')->setParameter('article', '%'.$article.'%')
-            ;
+        if ($article) {
+            $query->where('o.articul LIKE :article')->setParameter('article', '%' . $article . '%');
         }
-        if($name)
-        $query->orWhere('o.name LIKE :name')->setParameter('name', '%'.$name.'%')
-        ;
+        if ($name)
+            $query->orWhere('o.name LIKE :name')->setParameter('name', '%' . $name . '%');
 
-        if($limit)
-        {
+        if ($limit) {
             $query
                 ->setMaxResults($limit);
         }
-        if($offset)
+        if ($offset)
             $query->setFirstResult($offset);
         return $query->getQuery()->getResult();
     }
@@ -63,15 +59,15 @@ class ProductRepository extends ServiceEntityRepository
     public function createProduct($data)
     {
 
-        $article = $data['article'] ? $data['article']: null;
-        $img = $data['img'] ? $data['img']: null;
-        $name = $data['name'] ? $data['name']: null;
-        $price = $data['price'] ? $data['price']: null;
-        $quantity = $data['quantity'] ? $data['quantity']: null;
-        $allegroOffer = $data['allegroOffer'] ? $data['allegroOffer']: null;
+        $article = $data['article'] ? $data['article'] : null;
+        $img = $data['img'] ? $data['img'] : null;
+        $name = $data['name'] ? $data['name'] : null;
+        $price = $data['price'] ? $data['price'] : null;
+        $quantity = $data['quantity'] ? $data['quantity'] : null;
+        $allegroOffer = $data['allegroOffer'] ? $data['allegroOffer'] : null;
 
         $product = $this->findOneBy(['articul' => $data['article']]);
-        if(!$product) {
+        if (!$product) {
             $product = new Product();
             $image = new Images();
             $image->setUrl($img);
@@ -83,14 +79,18 @@ class ProductRepository extends ServiceEntityRepository
         }
 
         $newAllegroOffer = $this->em->getRepository(AllegroOffer::class)->findOneBy(['allegroId' => $allegroOffer]);
-        if(!$newAllegroOffer)
-        {
+        if (!$newAllegroOffer) {
             $newAllegroOffer = new AllegroOffer();
             $newAllegroOffer->setAllegroId($allegroOffer);
             $newAllegroOffer->setStatus('1');
             $this->em->persist($newAllegroOffer);
             $product->setAllegroOffer($newAllegroOffer);
         }
+
+            $image = new Images();
+            $image->setUrl($img);
+            $this->em->persist($image);
+        $product->addImage($image);
         $product->setQuantity($quantity);
         $this->em->persist($product);
         $this->em->flush();
@@ -99,26 +99,22 @@ class ProductRepository extends ServiceEntityRepository
     /* Если товра пришел из поставки, в будущем я соединю эти функции, а то выглядит не очень */
     public function addProductFromSupply($data): Product
     {
-        $article = isset($data['article']) ? $data['article']: null;
-        $name = isset($data['name']) ? $data['name']: null;
-        $quantity = isset($data['quantity']) ? $data['quantity']: null;
-        $upc = isset($data['upc']) ? $data['upc']: null;
-        $price = isset($data['price']) ? $data['price']: null;
-        $group = isset($data['group']) ? $data['group']: null;
-        $auto = isset($data['auto']) ? $data['auto']: null;
-        if ($group)
-        {
+        $article = isset($data['article']) ? $data['article'] : null;
+        $name = isset($data['name']) ? $data['name'] : null;
+        $quantity = isset($data['quantity']) ? $data['quantity'] : null;
+        $upc = isset($data['upc']) ? $data['upc'] : null;
+        $price = isset($data['price']) ? $data['price'] : null;
+        $group = isset($data['group']) ? $data['group'] : null;
+        $auto = isset($data['auto']) ? $data['auto'] : null;
+        if ($group) {
             $group = $this->em->getRepository(ProductGroup::class)->find($group);
         }
 
-        if($product = $this->findOneBy(['articul' => $article]))
-        {
-            if($quantity)
-            {
+        if ($product = $this->findOneBy(['articul' => $article])) {
+            if ($quantity) {
                 $product->addQuantity($quantity);
             }
-        }
-        else{
+        } else {
             $product = new Product();
             $product
                 ->setName($name)
@@ -127,11 +123,9 @@ class ProductRepository extends ServiceEntityRepository
                 ->setPrice($price)
                 ->setUpc($upc)
                 ->setAuto($auto)
-                ->setProductGroup($group)
-            ;
+                ->setProductGroup($group);
         }
-        if($article)
-        {
+        if ($article) {
             $this->em->persist($product);
             $this->em->flush();
         }

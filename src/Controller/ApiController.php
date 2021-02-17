@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Add\Add;
 use App\api\Api;
 use App\Entity\Product;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -168,4 +169,20 @@ class ApiController extends AbstractController
             return new JsonResponse($errors, 200);
         }
     }
+
+    /**
+     * @Route ("/get_unload_products")
+     * @param Request $request
+     */
+    public function getUnloadProducts(Request $request): Response
+    {
+        $criteria = new Criteria();
+        $criteria->where(Criteria::expr()->neq('name', null));
+        $criteria->andWhere(Criteria::expr()->eq('sync', null));
+        $criteria->orderBy(['id' => Criteria::DESC]);
+        $products = $this->em->getRepository(Product::class)->matching($criteria);
+
+        return $this->render('api/unloadProducts.html.twig', ['products' => $products]);
+    }
+
 }
