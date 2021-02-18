@@ -5,6 +5,7 @@ namespace App\Add;
 
 
 use App\ebay\Ebay;
+use App\Entity\Images;
 use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\Sale;
@@ -35,39 +36,34 @@ class Add
         unset($data['file']);
         $products = [];
         foreach ($data as $supplyProduct) {
-            if(isset($supplyProduct['name']) && isset($supplyProduct['articul'])) {
+            if (isset($supplyProduct['name']) && isset($supplyProduct['articul'])) {
 
                 $products[] = $this->em->getRepository(Product::class)->addProductFromSupply($supplyProduct);
-            }
-            else {
+            } else {
                 return 0;
             }
         }
-        if($files) {
-            foreach ($files as $file)
-            {
+        if ($files) {
+            foreach ($files as $file) {
                 $supplyFromCsv = $this->csvToArray(file_get_contents($file->getPathname()));
             }
             foreach ($supplyFromCsv as $productFromCsv) {
-                if(isset($productFromCsv['article'])) {
-                    if ($productFromCsv['article'])
-                    {
+                if (isset($productFromCsv['article'])) {
+                    if ($productFromCsv['article']) {
                         $NProduct = $this->em->getRepository(Product::class)->addProductFromSupply($productFromCsv);
                         $products[] = ['product' => $NProduct, 'quantity' => $productFromCsv['quantity'] ?? null];
                     }
                 }
             }
         }
-        if(!empty($products))
-        {
+        if (!empty($products)) {
             $supply = new Supply();
             $supply->setSender($header['sender']);
             $supply->setRecipient($header['recipient']);
             $supply->setDate(new \DateTime());
             $supply->setContract($header['contract']);
             $this->em->persist($supply);
-            foreach ($products as $product)
-            {
+            foreach ($products as $product) {
                 $this->em->getRepository(SupplyProduct::class)->createSupplyProduct($supply, $product['product'], $product['quantity']);
             }
             $this->em->flush();
@@ -79,21 +75,16 @@ class Add
     {
         $response = $this->ebay->getProductsFromEbay();
 
-        if($response)
-        {
-            if(isset($response['ActiveList']))
-            {
+        if ($response) {
+            if (isset($response['ActiveList'])) {
                 $productsFromEbay = $response['ActiveList']['ItemArray']['Item'];
-                foreach ($productsFromEbay as $product)
-                {
+                foreach ($productsFromEbay as $product) {
                     /** @var Product $inProduct */
                     $inProduct = $this->em->getRepository(Product::class)->findOneBy(['eId' => $product['ItemID']]);
-                    if(!$inProduct)
-                    {
+                    if (!$inProduct) {
                         $inProduct = new Product();
                     }
-                    if(isset($product['PictureDetails']))
-                    {
+                    if (isset($product['PictureDetails'])) {
                         $inProduct->setImg($product['PictureDetails']['GalleryURL']);
                     }
                     $inProduct->setName($product['Title']);
@@ -101,12 +92,9 @@ class Add
                     $inProduct->setSync(true);
                     $inProduct->setQuantity($product['QuantityAvailable']);
                     $inProduct->setEId($product['ItemID']);
-                    if(isset($product['BuyItNowPrice']))
-                    {
+                    if (isset($product['BuyItNowPrice'])) {
                         $inProduct->setPrice($product['BuyItNowPrice']);
-                    }
-                    else
-                    {
+                    } else {
                         $inProduct->setPrice($product['StartPrice']);
                     }
                     $this->em->persist($inProduct);
@@ -119,8 +107,7 @@ class Add
 
     public function deleteProducts($products)
     {
-        foreach ($products as $product)
-        {
+        foreach ($products as $product) {
             $this->em->remove($product);
         }
         $this->em->flush();
@@ -139,27 +126,23 @@ class Add
 
     public function syncToEbay($products)
     {
-        foreach ($products as $product)
-        {
+        foreach ($products as $product) {
             $data['title'] = $product->getName();
             $data['description'] = $product->getDescription();
             $data['quantity'] = $product->getQuantity();
             $data['upc'] = $product->getUpc();
             $data['price'] = $product->getPrice();
             $result = $this->ebay->addItem($data);
-            if($result['Ack'] == 'Failure')
-            {
-                foreach($result['Errors'] as $error)
-                {
+            if ($result['Ack'] == 'Failure') {
+                foreach ($result['Errors'] as $error) {
                     var_dump($error['LongMessage']);
                 }
             }
-            if(isset($result['ItemID']))
-            {
+            if (isset($result['ItemID'])) {
 
-                    $product->seteId($result['ItemID']);
-                    $product->setSync(true);
-                    $this->em->persist($product);
+                $product->seteId($result['ItemID']);
+                $product->setSync(true);
+                $this->em->persist($product);
 
             }
         }
@@ -170,20 +153,17 @@ class Add
         $response = $this->ebay->getOrdersFromEbay();
         $orders = $response['OrderArray']['Order'];
 
-        foreach ($orders as $order)
-        {
+        foreach ($orders as $order) {
             $inOrder = $this->em->getRepository(Order::class)->findOneBy(['eId' => $order['OrderID']]);
             $product = $this->em->getRepository(Product::class)->findOneBy(['eId' => $order['TransactionArray']['Transaction']['Item']['ItemID']]);
-            if(!$inOrder)
-            {
+            if (!$inOrder) {
                 $inOrder = new Order();
             }
             $date = new \DateTime($order['CreatedTime']);
             $inOrder->setDate($date);
             $inOrder->setBuyer($order['TransactionArray']['Transaction']['Buyer']['Email']);
             $inOrder->setPrice($order['TransactionArray']['Transaction']['TransactionPrice']);
-            if($product)
-            {
+            if ($product) {
                 $inOrder->addProduct($product);
             }
             $inOrder->setEId($order['OrderID']);
@@ -221,23 +201,39 @@ class Add
     {
         $newProduct = new Product();
         $name = '';
-        if($products)
-        {
-            foreach ($products as $product)
-            {
+        foreach ($options['images'] as $imageUrl) {
+            $image = new Images();
+            $image->setUrl($imageUrl);
+            $this->em->persist($image);
+            $newProduct->addImage($image);
+        }
+        if ($products) {
+            foreach ($products as $product) {
                 $newProduct->addKitProduct($product);
                 $newProduct->setAuto($product->getAuto());
-                $name.= $product->getDes()->getPlName().' + ';
+                $name .= $product->getDes()->getPlName() . ' + ';
             }
             $name = mb_strrchr($name, ' + ', true);
-            $name .= ' '.$products[0]->getAuto();
+            $name .= ' ' . $products[0]->getAuto();
             $newProduct->setArticul($options['article']);
             $newProduct->setPrice($options['price']);
-            $newProduct->setQuantity($options['quantity']);
+            $newProduct->setQuantity($this->getMinQuantityOfProducts($products));
             $newProduct->setName($name);
             $newProduct->setKit(true);
             $this->em->persist($newProduct);
             $this->em->flush();
         }
+    }
+
+    protected function getMinQuantityOfProducts($products)
+    {
+        $min = $products[0]->getQuantity();
+        foreach ($products as $product) {
+            if ($product->getQuantity() < $min) {
+                $min = $product->getQuantity();
+            }
+        }
+
+        return $min;
     }
 }

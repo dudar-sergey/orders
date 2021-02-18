@@ -35,15 +35,13 @@ class MainController extends AbstractController
 {
     protected $ebay;
     protected $em;
-    protected $allegro;
     protected $session;
     protected $am;
 
-    public function __construct(Ebay $ebay, EntityManagerInterface $em, Allegro $allegro, SessionInterface $session, AllegroUserManager $am)
+    public function __construct(Ebay $ebay, EntityManagerInterface $em, SessionInterface $session, AllegroUserManager $am)
     {
         $this->ebay = $ebay;
         $this->em = $em;
-        $this->allegro = $allegro;
         $this->session = $session;
         $this->am = $am;
     }
@@ -92,10 +90,15 @@ class MainController extends AbstractController
      */
     public function deleteProduct($productId): RedirectResponse
     {
+        /** @var Product $product */
         $product = $this->em->getRepository(Product::class)->find($productId);
 
         if($product)
         {
+            $images = $product->getImages();
+            foreach ($images as $image) {
+                $this->em->remove($image);
+            }
             $this->em->remove($product);
             $this->em->flush();
         }
@@ -171,7 +174,7 @@ class MainController extends AbstractController
      */
     public function showOrders(): Response
     {
-        $orders = $this->em->getRepository(Order::class)->findAllByDate();
+        $orders = $this->em->getRepository(Order::class)->findAllByDate($this->getUser());
         $paymentStatuses = $this->em->getRepository(PaymentStatus::class)->findAll();
         $forRender = [
           'orders'  => $orders,
@@ -197,10 +200,11 @@ class MainController extends AbstractController
      */
     public function test(Request $request): RedirectResponse
     {
+        $user = $this->getUser();
         $code = $request->get('code');
         if($code)
         {
-            $result = $this->allegro->getTokenForUser($code);
+            $result = $this->am->getTokenForUser($code, $user->getAllegroUserToken(), $user->getAllegroApplicationToken());
             $this->session->set('userTokenAllegro', $result);
         }
         return $this->redirectToRoute('products');
@@ -481,7 +485,7 @@ class MainController extends AbstractController
     }
 
     /**
-     *@Route("/products/sync_from_alegro", name="syncFromAllegro")
+     * @Route ("/products/sync_from_alegro", name="syncFromAllegro")
      */
     public function syncFromAllegro(): RedirectResponse
     {
@@ -491,16 +495,16 @@ class MainController extends AbstractController
         }catch (\Exception $e){
             $this->addFlash('notice', 'Ошибка синхронизации');
         }
-        return $this->redirectToRoute('products');
+        //return $this->redirectToRoute('products');
     }
 
     /**
      * @Route("/orders/sync_from_allegro", name="syncOrdersFromAllegro")
      */
-    public function syncOrdersFromAllegro()
+    public function syncOrdersFromAllegro(): RedirectResponse
     {
         try {
-            $this->am->syncOrdersFromAllegro();
+            $this->am->syncOrdersFromAllegro($this->getUser());
         }catch(\Exception $e){
             $this->addFlash('notice','Ошибка подключения к Allegro');
         }

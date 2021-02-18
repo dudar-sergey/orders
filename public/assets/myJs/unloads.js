@@ -14,20 +14,32 @@ window.addEventListener('load', () => {
         showNActiveProducts()
     })
 
+    const uploadButton = document.getElementById('upload-button')
+    uploadButton.addEventListener('click', () => {
+        sendProductsToUpload()
+    })
 
-    const allCheckbox = document.getElementById('all')
-    allCheckbox.addEventListener('click', function () {
-        if(allCheckbox.checked) {
-            $('input:checkbox').each(function() {
-                this.checked = true
-            })
-        } else {
-            $('input:checkbox').each(function() {
-                this.checked = false
-            })
+})
+
+function sendProductsToUpload() {
+    let currentProducts = [...document.getElementsByClassName('upload-checkbox')]
+    let requestBody = {
+        products: [
+        ]
+    }
+
+    currentProducts.forEach(function (el) {
+        if(el.checked) {
+            requestBody.products.push(el.value)
         }
     })
-})
+
+    fetch('/api/upload_to_allegro', {
+        method: 'POST',
+        body: JSON.stringify(requestBody)
+    }).then(r => {
+    })
+}
 
 function getUnloadProducts() {
     let html
@@ -54,3 +66,19 @@ function showNActiveProducts() {
 function clearTable(table) {
     table.innerText = ''
 }
+
+
+
+
+const allCheckbox = document.getElementById('all')
+allCheckbox.addEventListener('click', function () {
+    if(allCheckbox.checked) {
+        $('input:checkbox').each(function() {
+            this.checked = true
+        })
+    } else {
+        $('input:checkbox').each(function() {
+            this.checked = false
+        })
+    }
+})

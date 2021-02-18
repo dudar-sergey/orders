@@ -4,6 +4,7 @@
 namespace App\ebay;
 
 
+use App\Entity\AllegroDeliveryMethod;
 use App\Entity\AllegroOffer;
 use App\Entity\Order;
 use App\Entity\Product;
@@ -29,6 +30,23 @@ class AllegroUserManager
             //'proxy'=>'http://wNogF3:k1VdVC@185.183.161.196:8000',
         ]);
         $this->em = $em;
+    }
+
+    public function getTokenBase64($clientId, $clientSecret)
+    {
+        return base64_encode($clientId.':'.$clientSecret);
+    }
+
+    public function getTokenForUser($code, $clientId, $clientSecret)
+    {
+        $url = 'https://allegro.pl/auth/oauth/token?grant_type=authorization_code&code='.$code.'&redirect_uri=https://localhost:8000/allAuth';
+        $response = $this->client->request('POST', $url, [
+            'headers' => [
+                'Authorization' => 'Basic '.$this->getTokenBase64($clientId, $clientSecret),
+            ],
+        ]);
+        $accessToken = json_decode($response->getContent(), true);
+        return $accessToken['access_token'];
     }
 
     public function getDeliverySettings()
@@ -181,7 +199,7 @@ class AllegroUserManager
           ],
           'delivery' => [
             'shippingRates' => [
-              'id' => '3d68ea9f-8e59-4517-9102-6984ba39bbb0'
+              'id' => $product->getDeliveryMethod()->getMethodId()
             ],
             'handlingTime' => 'PT0S',
           ],
@@ -324,7 +342,7 @@ class AllegroUserManager
         }
     }
 
-    public function syncOrdersFromAllegro()
+    public function syncOrdersFromAllegro($user)
     {
         $response = json_decode($this->getOrdersFromAllegro(), true);
         $orders = $response['checkoutForms'] ?? null;
@@ -341,7 +359,7 @@ class AllegroUserManager
                     'date' => new \DateTime($order['updatedAt']),
                     'placement' => 'allegro',
                     'allegroId' => $order['id']
-                ]);
+                ], $user);
             }
         }
     }

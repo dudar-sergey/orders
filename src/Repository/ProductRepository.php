@@ -67,6 +67,7 @@ class ProductRepository extends ServiceEntityRepository
         $allegroOffer = $data['allegroOffer'] ? $data['allegroOffer'] : null;
 
         $product = $this->findOneBy(['articul' => $data['article']]);
+        var_dump($product->getId());
         if (!$product) {
             $product = new Product();
             $image = new Images();

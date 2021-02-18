@@ -10,6 +10,8 @@
                     <div class="card-body">
                         {{ form_start(form) }}
                         {{ form_row(form.username) }}
+                        {{ form_row(form.allegroUserToken) }}
+                        {{ form_row(form.allegroApplicationToken) }}
                         {{ form_row(form.roles) }}
                         <button type="submit" class="btn btn-outline-secondary mt-3">Обновить</button>
                         {{ form_end(form) }}

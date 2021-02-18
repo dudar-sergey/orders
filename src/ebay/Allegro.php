@@ -4,6 +4,7 @@
 namespace App\ebay;
 
 
+use App\Controller\user\UserController;
 use Symfony\Component\HttpClient\HttpClient;
 
 class Allegro
@@ -13,19 +14,14 @@ class Allegro
     private $client;
     private $accessToken;
 
-    public function __construct()
+    public function __construct($clientId, $clientSecret)
     {
-        $this->clientId = 'a95c7c8a0337479daa2813be1f8cb669';
-        $this->clientSecret = 'KcHtgbkCK9XdQhUu0vYvpVGzNuFdfCctAbUt2ugstAkgvacYzai8PhT9H9iyUyHV';
+        $this->clientId = $clientId;
+        $this->clientSecret = $clientSecret;
         $this->client = HttpClient::create([
             //'proxy'=>'http://wNogF3:k1VdVC@185.183.161.196:8000',
         ]);
         $this->createAccessToken();
-    }
-
-    public function getTokenBase64()
-    {
-        return base64_encode($this->clientId.':'.$this->clientSecret);
     }
 
 

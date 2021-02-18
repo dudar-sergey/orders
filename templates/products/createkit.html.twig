@@ -6,7 +6,10 @@
 {% block body %}
     <a href="{{ path('products') }}" class="m-3">Назад</a>
         <div class="container">
-            <div class="row mt-5">
+            <div class="row m-0 justify-content-end">
+                <button class="btn btn-outline-primary mt-3" id="add-button">Добавить</button>
+            </div>
+            <div class="row mt-2">
                 <div class="col-xl-6">
                     <div class="card">
                         <div class="card-body shadow">
@@ -28,10 +31,27 @@
                     <div class="card">
                         <div class="card-body shadow">
                             <h3>Введите характеристики товара</h3>
-                            <input class="form-control" id="article" type="text" placeholder="Введите артикул">
+                            <div class="form-inline">
+                                <input class="form-control flex-column" id="article" type="text" placeholder="Введите артикул"><i id="gen-article" class="fas fa-redo ml-2"></i>
+                            </div>
                             <input class="form-control mt-3" id="price" type="text" placeholder="Введите цену нового товара">
-                            <input class="form-control mt-3" type="text" id="quantity" placeholder="Введите количество">
-                            <button class="btn btn-outline-primary mt-3" id="add-button">Добавить</button>
+                            <textarea class="form-control mt-3" id="description" placeholder="Введите Описание"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="card w-100">
+                    <div class="card-body text-center">
+                        <h3>Добавление фотографий</h3>
+                        <div class="container">
+                            <div class="row text-center">
+                                <input type="text" class="form-control" id="add-image" placeholder="Введите ссылку">
+                            </div>
+                            <div class="row" id="image-gallery">
+
+                            </div>
+                            
                         </div>
                     </div>
                 </div>

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Controller\user\UserController;
 use App\Entity\AllegroOffer;
 use App\Entity\Order;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -17,11 +18,13 @@ use Doctrine\Persistence\ManagerRegistry;
 class OrderRepository extends ServiceEntityRepository
 {
     private $em;
+    private $uc;
 
-    public function __construct(ManagerRegistry $registry, EntityManagerInterface $em)
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $em, UserController $uc)
     {
         parent::__construct($registry, Order::class);
         $this->em = $em;
+        $this->uc = $uc;
     }
 
     /**
@@ -35,7 +38,7 @@ class OrderRepository extends ServiceEntityRepository
      * - allegroId
      * @return Order
      */
-    public function createUpdateOrder($data): Order
+    public function createUpdateOrder($data, $user): Order
     {
         /** @var AllegroOffer $allegroOffer */
         $allegroOffer = $this->em->getRepository(AllegroOffer::class)->findOneBy(['allegroId' => $data['allegroOfferId']]);
@@ -56,15 +59,18 @@ class OrderRepository extends ServiceEntityRepository
             ->setDate($date)
             ->setPlacement($placement)
             ->setAllegroId($allegroId)
+            ->setUser($user);
         ;
         $this->em->persist($order);
         $this->em->flush();
         return $order;
     }
 
-    public function findAllByDate()
+    public function findAllByDate($user)
     {
         return $this->createQueryBuilder('o')
+            ->where('o.user = :user')
+            ->setParameter('user', $user->getId())
             ->orderBy('o.date', 'desc')
             ->getQuery()
             ->getResult()

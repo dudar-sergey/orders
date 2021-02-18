@@ -50,11 +50,6 @@ class Product
     private $eId;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $img;
-
-    /**
      * @ORM\Column(type="string", length=1000, nullable=true)
      */
     private $url;
@@ -144,6 +139,11 @@ class Product
      */
     private $allegroTitle;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=AllegroDeliveryMethod::class)
+     */
+    private $deliveryMethod;
+
     public function __toString(): string
     {
         return $this->getArticul().' '.$this->getName();
@@ -230,18 +230,6 @@ class Product
     public function setEId(?string $eId): self
     {
         $this->eId = $eId;
-
-        return $this;
-    }
-
-    public function getImg(): ?string
-    {
-        return $this->img;
-    }
-
-    public function setImg(?string $img): self
-    {
-        $this->img = $img;
 
         return $this;
     }
@@ -528,6 +516,18 @@ class Product
     public function setAllegroTitle(?string $allegroTitle): self
     {
         $this->allegroTitle = $allegroTitle;
+
+        return $this;
+    }
+
+    public function getDeliveryMethod(): ?AllegroDeliveryMethod
+    {
+        return $this->deliveryMethod;
+    }
+
+    public function setDeliveryMethod(?AllegroDeliveryMethod $deliveryMethod): self
+    {
+        $this->deliveryMethod = $deliveryMethod;
 
         return $this;
     }

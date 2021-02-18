@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -33,6 +35,26 @@ class User implements UserInterface
      * @ORM\Column(type="string")
      */
     private $password;
+
+    /**
+     * @ORM\Column(type="string", length=500, nullable=true)
+     */
+    private $allegroUserToken;
+
+    /**
+     * @ORM\Column(type="string", length=500, nullable=true)
+     */
+    private $allegroApplicationToken;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Order::class, mappedBy="user")
+     */
+    private $orders;
+
+    public function __construct()
+    {
+        $this->orders = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -105,5 +127,59 @@ class User implements UserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getAllegroUserToken(): ?string
+    {
+        return $this->allegroUserToken;
+    }
+
+    public function setAllegroUserToken(?string $allegroUserToken): self
+    {
+        $this->allegroUserToken = $allegroUserToken;
+
+        return $this;
+    }
+
+    public function getAllegroApplicationToken(): ?string
+    {
+        return $this->allegroApplicationToken;
+    }
+
+    public function setAllegroApplicationToken(?string $allegroApplicationToken): self
+    {
+        $this->allegroApplicationToken = $allegroApplicationToken;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Order[]
+     */
+    public function getOrders(): Collection
+    {
+        return $this->orders;
+    }
+
+    public function addOrder(Order $order): self
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders[] = $order;
+            $order->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(Order $order): self
+    {
+        if ($this->orders->removeElement($order)) {
+            // set the owning side to null (unless already changed)
+            if ($order->getUser() === $this) {
+                $order->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }

@@ -101,4 +101,10 @@ div.nav-link.active {
 input[type='checkbox'] {
     cursor: pointer;
 }
+.fas.fa-redo.ml-2 {
+    cursor: pointer;
+}
+img.image {
+    cursor: pointer;
+}
 

@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -16,7 +17,7 @@ class MyUserType extends AbstractType
         $builder
             ->add('username', TextType::class, [
                 'attr' => [
-                  'class' => 'form-control'
+                  'class' => 'form-control mb-3'
                 ],
                 'label' => false
             ])
@@ -30,6 +31,18 @@ class MyUserType extends AbstractType
                 'attr' => [
                     'class' => 'mt-3'
                 ]
+            ])
+            ->add('allegroUserToken', TextareaType::class, [
+                'attr' => [
+                    'class' => 'form-control mb-3'
+                ],
+                'label' => 'Client id из аллегро'
+            ])
+            ->add('allegroApplicationToken', TextAreaType::class, [
+                'attr' => [
+                    'class' => 'form-control mb-3'
+                ],
+                'label' => 'client secret из аллегро'
             ])
         ;
     }

@@ -24,7 +24,46 @@ window.addEventListener('load', () => {
     $('.toast').toast({
         delay: 2000
     })
+
+    let genArticleButton = document.getElementById('gen-article')
+    genArticleButton.addEventListener('click', function () {
+        let articleInput = document.getElementById('article')
+        articleInput.value = generateArticle()
+    })
+
+    let imageInput = document.getElementById('add-image')
+    imageInput.addEventListener('keypress', e => {
+        if(e.key === 'Enter') {
+            createImage(imageInput)
+        }
+    })
 })
+
+function createImage(input) {
+    let imageGallery = document.getElementById('image-gallery')
+    if(input !== '') {
+        let image = document.createElement('img')
+        image.src = input.value
+        image.classList.add('m-3', 'image')
+        image.style.height = '150px'
+        image.style.width = '150px'
+        image.style.borderRadius = '10px'
+        imageGallery.appendChild(image)
+        input.value = ''
+        image.addEventListener('click', () => {
+            image.animate([
+                // keyframes
+                { transform: 'scale(0.1)' }
+            ], {
+                // timing options
+                duration: 200,
+            })
+            setTimeout(function () {
+                image.remove()
+            }, 200)
+        })
+    }
+}
 
 function addToSelect(result, table) {
     clearTable(table)
@@ -49,16 +88,20 @@ function clearTable(table) {
 }
 
 function sendKitRequest(button) {
+    let imagesSrc = []
+    let images = [...document.getElementsByClassName('image')]
+    images.forEach(image => {
+        imagesSrc.push(image.getAttribute('src'))
+    })
+    console.log(imagesSrc)
     let checkboxes = [...document.getElementsByClassName('checkbox')]
     let articleInput = document.getElementById('article')
     let priceInput = document.getElementById('price')
-    let quantityInput = document.getElementById('quantity')
     let requestBody = {
         products: [],
         options: {
             article: null,
             price: null,
-            quantity: null,
         }
     }
     checkboxes.forEach(function (checkbox) {
@@ -68,10 +111,9 @@ function sendKitRequest(button) {
             )
         }
     })
+    requestBody.options.images = imagesSrc
     requestBody.options.article = articleInput.value
     requestBody.options.price = priceInput.value
-    requestBody.options.quantity = quantityInput.value
-    console.log(requestBody)
     fetch('/api/create_kit', {
         method: 'POST',
         body: JSON.stringify(requestBody)
@@ -84,6 +126,16 @@ function sendKitRequest(button) {
 function showNot(message) {
     $('.toast-body').text(message)
     $('.toast').toast('show')
+}
+
+function generateArticle() {
+    const prefix = 'DMK'
+    const serial = '06'
+    let date = new Date()
+    let hours = ('0'+date.getHours()).substr(-2)
+    let second = ('0'+date.getSeconds()).substr(-2)
+    let day = ('0'+date.getDay()).substr(-1)
+    return prefix + serial + hours + second + day
 }
 
 

@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Add\Add;
 use App\api\Api;
+use App\Controller\user\UserController;
+use App\ebay\AllegroUserManager;
 use App\Entity\Product;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,13 +27,15 @@ class ApiController extends AbstractController
     private $session;
     private $em;
     private $add;
+    private $am;
 
-    public function __construct(Api $api, SessionInterface $session, EntityManagerInterface $em, Add $add)
+    public function __construct(Api $api, SessionInterface $session, EntityManagerInterface $em, Add $add, AllegroUserManager $am)
     {
         $this->api = $api;
         $this->session = $session;
         $this->em = $em;
         $this->add = $add;
+        $this->am = $am;
     }
 
     /**
@@ -183,6 +187,25 @@ class ApiController extends AbstractController
         $products = $this->em->getRepository(Product::class)->matching($criteria);
 
         return $this->render('api/unloadProducts.html.twig', ['products' => $products]);
+    }
+
+    /**
+     * @Route ("/upload_to_allegro")
+     * @param Request $request
+     */
+    public function uploadToAllegro(Request $request)
+    {
+        $products = [];
+        $content = json_decode($request->getContent(), true);
+        if($content) {
+            foreach ($content['products'] as $productId) {
+                $products[] = $this->em->getRepository(Product::class)->find($productId);
+            }
+        }
+        foreach ($products as $product) {
+            //return $this->am->addOfferToAllegro($product);
+        }
+        return new Response('ok');
     }
 
 }
