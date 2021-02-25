@@ -364,6 +364,7 @@ class MainController extends AbstractController
         $forRender = [
             'product' => $product,
             'form' => $form->createView(),
+            'refer' => $request->headers->get('referer')
         ];
         return $this->render('products/card.html.twig', $forRender);
     }

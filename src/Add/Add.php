@@ -4,6 +4,7 @@
 namespace App\Add;
 
 
+use App\ebay\AllegroUserManager;
 use App\ebay\Ebay;
 use App\Entity\Images;
 use App\Entity\Order;
@@ -21,11 +22,13 @@ class Add
     private $em;
     private $ebay;
     private $serializer;
+    private $am;
 
-    public function __construct(EntityManagerInterface $em, Ebay $ebay)
+    public function __construct(EntityManagerInterface $em, Ebay $ebay, AllegroUserManager $am)
     {
         $this->em = $em;
         $this->ebay = $ebay;
+        $this->am = $am;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder()]);
     }
 
@@ -211,13 +214,16 @@ class Add
             foreach ($products as $product) {
                 $newProduct->addKitProduct($product);
                 $newProduct->setAuto($product->getAuto());
-                $name .= $product->getDes()->getPlName() . ' + ';
+                $name .= $product->getDes()->getPlName() . '+';
             }
-            $name = mb_strrchr($name, ' + ', true);
+            $name = mb_strrchr($name, '+', true);
             $name .= ' ' . $products[0]->getAuto();
             $newProduct->setArticul($options['article']);
+            $newProduct->setDescription($options['description']);
             $newProduct->setPrice($options['price']);
             $newProduct->setQuantity($this->getMinQuantityOfProducts($products));
+            $newProduct->setDeliveryMethod($options['deliveryMethod']);
+            $newProduct->setAllegroTitle($name);
             $newProduct->setName($name);
             $newProduct->setKit(true);
             $this->em->persist($newProduct);
@@ -235,5 +241,18 @@ class Add
         }
 
         return $min;
+    }
+
+    public function changeQuantityProduct(Product $product, $quantity)
+    {
+        $response = [];
+        if($quantity) {
+            $product->setQuantity($quantity);
+            $this->em->flush();
+        }
+        if($product->getAllegroOffer()) {
+            $response = $this->am->changeQuantity($product->getAllegroOffer()->getAllegroId(), $quantity);
+        }
+        return $response;
     }
 }

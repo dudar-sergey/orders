@@ -1,7 +1,9 @@
 {% extends 'base.html.twig' %}
 {% block body %}
-    <a href="{{ path('products') }}" class="m-3">Назад</a>
+    <a href="{{ refer }}" class="m-3">Назад</a>
     <div class="container">
+        <div id="alert">
+        </div>
         <div class="row justify-content-center">
             <h3>Товар {{ product.name }}</h3>
         </div>
@@ -9,13 +11,11 @@
             <div class="col xl-6">
                 <div class="card shadow">
                     <div class="card-body">
-                        {{ form_start(form, {'attr': {'class': 'w-100'}}) }}
                         <label for="art">Артикул</label><input type="text" readonly value="{{ product.articul }}" class="form-control mt-3 mb-3" id="art">
-                        {{ form_row(form.name, {'attr': {'class': 'form-control mt-3 mb-3'}}) }}
-                        {{ form_row(form.quantity, {'attr': {'class': 'form-control mt-3 mb-3'}}) }}
+                        <label for="name">Имя</label><input value="{{ product.name }}" type="text" id="name" class="form-control mt-3 mb-3">
+                        <label for="quantity">Количество</label><input value="{{ product.quantity }}" type="text" id="quantity" class="form-control mt-3 mb-3">
                         <label for="price">Цена</label><input type="text" readonly value="{{ product.price }}" class="form-control mt-3 mb-3" id="price">
-                        <button type="submit" class="btn btn-outline-secondary" name="submit">Обновить</button>
-                        {{ form_end(form) }}
+                        <button value="{{ product.id }}" class="btn btn-outline-secondary" id="update-btn" name="submit">Обновить</button>
                     </div>
                 </div>
             </div>
@@ -57,4 +57,9 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/myJs/cardItem.js') }}"></script>
 {% endblock %}

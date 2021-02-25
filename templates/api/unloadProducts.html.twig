@@ -4,7 +4,11 @@
             <td class="th-checkbox"><input class="upload-checkbox" value="{{ product.id }}" type="checkbox"></td>
             <td class="product-img"><img src="{{ product.images.first.url ?? 'https://kknd26.ru/images/no_photo.png' }}"
                      width="150" height="100" alt=""></td>
-            <td class="product-name">{{ product.name }}</td>
+            <td><a href="{{ path('cardItem', {'itemId': product.id}) }}">{{ product.name }}
+                    {% if product.name | length > 50 %}
+                        <br><i style="color: red; font-size: small">В названии больше 50 символов</i>
+                    {% endif %}
+                </a></td>
             <td></td>
             <td></td>
             <td></td>

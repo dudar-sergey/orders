@@ -18,8 +18,8 @@ window.addEventListener('load', () => {
     })
 
     input.addEventListener('keyup', function () {
-        if(input.value === '')
-        clearTable(table)
+        if (input.value === '')
+            clearTable(table)
     })
     $('.toast').toast({
         delay: 2000
@@ -33,7 +33,7 @@ window.addEventListener('load', () => {
 
     let imageInput = document.getElementById('add-image')
     imageInput.addEventListener('keypress', e => {
-        if(e.key === 'Enter') {
+        if (e.key === 'Enter') {
             createImage(imageInput)
         }
     })
@@ -41,7 +41,7 @@ window.addEventListener('load', () => {
 
 function createImage(input) {
     let imageGallery = document.getElementById('image-gallery')
-    if(input !== '') {
+    if (input !== '') {
         let image = document.createElement('img')
         image.src = input.value
         image.classList.add('m-3', 'image')
@@ -53,7 +53,7 @@ function createImage(input) {
         image.addEventListener('click', () => {
             image.animate([
                 // keyframes
-                { transform: 'scale(0.1)' }
+                {transform: 'scale(0.1)'}
             ], {
                 // timing options
                 duration: 200,
@@ -67,7 +67,7 @@ function createImage(input) {
 
 function addToSelect(result, table) {
     clearTable(table)
-    for(let k = 0; k < result.length; k++) {
+    for (let k = 0; k < result.length; k++) {
         let tr = document.createElement('tr')
         let ftd = document.createElement('td')
         let std = document.createElement('td')
@@ -97,6 +97,7 @@ function sendKitRequest(button) {
     let checkboxes = [...document.getElementsByClassName('checkbox')]
     let articleInput = document.getElementById('article')
     let priceInput = document.getElementById('price')
+    let descriptionInput = document.getElementById('description')
     let requestBody = {
         products: [],
         options: {
@@ -105,7 +106,7 @@ function sendKitRequest(button) {
         }
     }
     checkboxes.forEach(function (checkbox) {
-        if(checkbox.checked) {
+        if (checkbox.checked) {
             requestBody.products.push(
                 checkbox.value
             )
@@ -114,13 +115,23 @@ function sendKitRequest(button) {
     requestBody.options.images = imagesSrc
     requestBody.options.article = articleInput.value
     requestBody.options.price = priceInput.value
-    fetch('/api/create_kit', {
-        method: 'POST',
-        body: JSON.stringify(requestBody)
-    }).then(async r => {
-        r = await r.json()
-        showNot(r.message)
-    })
+    requestBody.options.description = descriptionInput.value
+    console.log(descriptionInput.value)
+    if (articleInput.value !== '') {
+        fetch('/api/create_kit', {
+            method: 'POST',
+            body: JSON.stringify(requestBody)
+        }).then(async r => {
+            r = await r.json()
+            showNot(r.message)
+        })
+    } else {
+        showNot('Введите артикул')
+        articleInput.style.borderColor = 'red'
+        setTimeout(function () {
+            articleInput.style.borderColor = ''
+        }, 1000)
+    }
 }
 
 function showNot(message) {
@@ -132,9 +143,9 @@ function generateArticle() {
     const prefix = 'DMK'
     const serial = '06'
     let date = new Date()
-    let hours = ('0'+date.getHours()).substr(-2)
-    let second = ('0'+date.getSeconds()).substr(-2)
-    let day = ('0'+date.getDay()).substr(-1)
+    let hours = ('0' + date.getHours()).substr(-2)
+    let second = ('0' + date.getSeconds()).substr(-2)
+    let day = ('0' + date.getDay()).substr(-1)
     return prefix + serial + hours + second + day
 }
 

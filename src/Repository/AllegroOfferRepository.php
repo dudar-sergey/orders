@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\AllegroOffer;
+use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -14,9 +16,25 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class AllegroOfferRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $em;
+
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $em)
     {
         parent::__construct($registry, AllegroOffer::class);
+        $this->em = $em;
+    }
+
+    public function createOffer($id, Product $product): AllegroOffer
+    {
+        $offer = new AllegroOffer();
+        $offer
+            ->setProduct($product)
+            ->setAllegroId($id)
+            ->setStatus(false)
+        ;
+        $this->em->persist($offer);
+        $this->em->flush();
+        return $offer;
     }
 
     // /**

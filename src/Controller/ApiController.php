@@ -6,6 +6,8 @@ use App\Add\Add;
 use App\api\Api;
 use App\Controller\user\UserController;
 use App\ebay\AllegroUserManager;
+use App\Entity\AllegroDeliveryMethod;
+use App\Entity\AllegroOffer;
 use App\Entity\Product;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\Json;
 
 /**
  * Class ApiController
@@ -39,6 +42,31 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Route ("/update_product/{productId}")
+     * @param Request $request
+     * @param $productId
+     */
+    public function updateProduct(Request $request, $productId)
+    {
+        $product = $this->em->getRepository(Product::class)->find($productId);
+        $name = $request->get('new_name') ?? null;
+        $quantity = $request->get('quantity') ?? null;
+        if($product && $name && $quantity) {
+            $product
+                ->setName($name);
+            $this->em->flush();
+            if($quantity != $product->getQuantity()) {
+                $this->add->changeQuantityProduct($product, $quantity);
+            }
+            return new JsonResponse([
+                'message' => 'Товар '.$product->getId().' изменен'
+            ]);
+        } else {
+            return new JsonResponse(['message' => 'Товар не найден'], 400);
+        }
+    }
+
+    /**
      * @Route("/getorders", name="getOrders")
      */
     public function getOrders()
@@ -57,7 +85,7 @@ class ApiController extends AbstractController
         return $this->api->getProducts($request->get('filters'));
     }
 
-    public function transformJsonBody(Request $request)
+    public function transformJsonBody(Request $request): Request
     {
         $data = json_decode($request->getContent(), true);
 
@@ -98,6 +126,18 @@ class ApiController extends AbstractController
         $this->session->set('limit', $limit);
 
         return $this->api->response('ok');
+    }
+
+    /**
+     * @Route ("/get_offer_from_allegro_api/{offerId}")
+     * @param $offerId
+     * @return JsonResponse
+     */
+    public function getOfferFromAllegroApi($offerId): JsonResponse
+    {
+        $response = $this->am->getOfferFromAllegro($offerId);
+
+        return new JsonResponse($response, 200);
     }
 
     /**
@@ -148,13 +188,15 @@ class ApiController extends AbstractController
     /**
      * @Route("/create_kit", methods={"POST"})
      * @param Request $request
+     * @return JsonResponse
      */
-    public function createKit(Request $request)
+    public function createKit(Request $request): JsonResponse
     {
         $products = [];
         $errors = [];
         $content = json_decode($request->getContent(), true);
         $options = $content['options'];
+        $options['deliveryMethod'] = $this->em->getRepository(AllegroDeliveryMethod::class)->find(3);
         if(!$content['products']) $errors['message'] = 'Не найдено ничего';
         foreach ($content['products'] as $item) {
             $product =  $this->em->getRepository(Product::class)->find($item);
@@ -164,7 +206,6 @@ class ApiController extends AbstractController
                 $errors['message'] = 'Не найден id: '.$item;
             }
         }
-
         $this->add->addKitProduct($products, $options);
 
         if(empty($errors)) {
@@ -176,9 +217,8 @@ class ApiController extends AbstractController
 
     /**
      * @Route ("/get_unload_products")
-     * @param Request $request
      */
-    public function getUnloadProducts(Request $request): Response
+    public function getUnloadProducts(): Response
     {
         $criteria = new Criteria();
         $criteria->where(Criteria::expr()->neq('name', null));
@@ -190,11 +230,37 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Route ("/get_nonactivate_products")
+     */
+    public function getNonActivateProducts(): Response
+    {
+        $exportProducts = [];
+        $criteria = new Criteria();
+        $criteria->where(Criteria::expr()->neq('name', null));
+        $criteria->andWhere(Criteria::expr()->eq('sync', true));
+        $criteria->orderBy(['id' => Criteria::DESC]);
+        $products = $this->em->getRepository(Product::class)->matching($criteria);
+        foreach ($products as $product) {
+            $allegroOffer = $product->getAllegroOffer();
+            if($allegroOffer) {
+                if($allegroOffer->getStatus() == false) {
+                    $exportProducts[] = $product;
+                }
+            }
+        }
+
+        return $this->render('api/unloadProducts.html.twig', ['products' => $exportProducts]);
+    }
+
+    /**
      * @Route ("/upload_to_allegro")
      * @param Request $request
+     * @return Response
      */
-    public function uploadToAllegro(Request $request)
+    public function uploadToAllegro(Request $request): Response
     {
+        $allegroOfferRep = $this->em->getRepository(AllegroOffer::class);
+        /** @var Product[] $products */
         $products = [];
         $content = json_decode($request->getContent(), true);
         if($content) {
@@ -203,9 +269,35 @@ class ApiController extends AbstractController
             }
         }
         foreach ($products as $product) {
-            //return $this->am->addOfferToAllegro($product);
+            $response = $this->am->addOfferToAllegro($product, $product->getKit());
+            if(isset($response['id'])) {
+                $allegroOfferRep->createOffer($response['id'], $product);
+                $product->setSync(true);
+                $this->em->flush();
+            }
+        }
+        if(empty($product)) {
+            return new Response('Товары не найдены', 400);
         }
         return new Response('ok');
     }
 
+    /**
+     * @Route ("/change_product_quantity_everywhere/{productId}")
+     * @param $productId
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function changeProductQuantityEverywhere($productId, Request $request): JsonResponse
+    {
+        $response = [];
+        $product = $this->em->getRepository(Product::class)->find($productId);
+        $quantity = $request->get('quantity') ?? null;
+        if($product) {
+            if($quantity) {
+                $response = $this->add->changeQuantityProduct($product, $quantity);
+            }
+        }
+        return new JsonResponse($response);
+    }
 }

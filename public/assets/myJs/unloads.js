@@ -1,12 +1,14 @@
 window.addEventListener('load', () => {
     const unload = document.getElementById('unload')
     const nActive = document.getElementById('n-active')
-    showUnloadProducts().then(() => {})
+    showUnloadProducts().then(() => {
+    })
 
     unload.addEventListener('click', () => {
         nActive.classList.remove('active')
         unload.classList.add('active')
-        showUnloadProducts().then(()  => {})
+        showUnloadProducts().then(() => {
+        })
     })
     nActive.addEventListener('click', () => {
         unload.classList.remove('active')
@@ -24,12 +26,11 @@ window.addEventListener('load', () => {
 function sendProductsToUpload() {
     let currentProducts = [...document.getElementsByClassName('upload-checkbox')]
     let requestBody = {
-        products: [
-        ]
+        products: []
     }
 
     currentProducts.forEach(function (el) {
-        if(el.checked) {
+        if (el.checked) {
             requestBody.products.push(el.value)
         }
     })
@@ -39,12 +40,6 @@ function sendProductsToUpload() {
         body: JSON.stringify(requestBody)
     }).then(r => {
     })
-}
-
-function getUnloadProducts() {
-    let html
-
-    return ''
 }
 
 async function showUnloadProducts() {
@@ -58,9 +53,16 @@ async function showUnloadProducts() {
         })
 }
 
-function showNActiveProducts() {
+async function showNActiveProducts() {
     let table = document.getElementById('unload-table');
     clearTable(table)
+    fetch('/api/get_nonactivate_products', {
+        method: 'GET'
+    })
+        .then(async r => {
+            table.innerHTML = await r.text();
+        })
+
 }
 
 function clearTable(table) {
@@ -68,16 +70,14 @@ function clearTable(table) {
 }
 
 
-
-
 const allCheckbox = document.getElementById('all')
 allCheckbox.addEventListener('click', function () {
-    if(allCheckbox.checked) {
-        $('input:checkbox').each(function() {
+    if (allCheckbox.checked) {
+        $('input:checkbox').each(function () {
             this.checked = true
         })
     } else {
-        $('input:checkbox').each(function() {
+        $('input:checkbox').each(function () {
             this.checked = false
         })
     }

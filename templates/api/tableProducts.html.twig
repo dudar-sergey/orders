@@ -28,13 +28,13 @@
     <div class="row justify-content-center">
         <nav>
             <ul class="pagination" id="products-pagination">
-                <li class="page-item"><button class="page-link"><<</button></li>
-                {% if currentPage > 2 %}<li class="page-item" value="{{ currentPage - 2 }}"><button class="page-link my-page">{{ currentPage - 2 }}</button></li>{% endif %}
-                {% if currentPage > 1 %}<li class="page-item" value="{{ currentPage - 1 }}"><button class="page-link my-page">{{ currentPage - 1 }}</button></li>{% endif %}
-                <li class="page-item active" value="{{ currentPage }}"><button class="page-link my-page">{{ currentPage }}</li>
-                {% if currentPage < pages %}<li class="page-item" value="{{ currentPage + 1 }}"><button class="page-link my-page">{{ currentPage + 1 }}</button></li>{% endif %}
-                {% if currentPage < pages - 1 %}<li class="page-item" value="{{ currentPage + 2 }}"><button class="page-link my-page">{{ currentPage + 2 }}</button></li>{% endif %}
-                <li class="page-item"><button class="page-link">>></button></li>
+                <li class="page-item"><button value="1" class="page-link"><<</button></li>
+                {% if currentPage > 2 %}<li class="page-item"><button value="{{ currentPage - 2 }}" class="page-link my-page">{{ currentPage - 2 }}</button></li>{% endif %}
+                {% if currentPage > 1 %}<li class="page-item"><button value="{{ currentPage - 1 }}" class="page-link my-page">{{ currentPage - 1 }}</button></li>{% endif %}
+                <li class="page-item active"><button value="{{ currentPage }}" class="page-link my-page">{{ currentPage }}</li>
+                {% if currentPage < pages %}<li class="page-item"><button value="{{ currentPage + 1 }}" class="page-link my-page">{{ currentPage + 1 }}</button></li>{% endif %}
+                {% if currentPage < pages - 1 %}<li class="page-item"><button value="{{ currentPage + 2 }}" class="page-link my-page">{{ currentPage + 2 }}</button></li>{% endif %}
+                <li class="page-item"><button value="{{ pages }}" class="page-link">>></button></li>
             </ul>
         </nav>
     </div>

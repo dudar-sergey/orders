@@ -6,8 +6,10 @@ window.addEventListener('load', () => {
 
 function href(){
     let link = document.getElementsByClassName('nav-link')
+    let pathname = window.location.pathname.split('/')
     for(let i = 0; i < link.length; i++){
-        if (link[i].getAttribute('href') === window.location.pathname){
+        let currentLink = link[i].getAttribute('href').split('/')
+        if (currentLink[1] === pathname[1]){
             link[i].classList.add('active');
         }
     }

@@ -51,15 +51,28 @@ class AllegroUserManager
 
     public function getDeliverySettings()
     {
-        $response = $this->client->request('GET', 'https://api.allegro.pl/sale/offers/9939962050', [
+        $response = $this->client->request('GET', 'https://api.allegro.pl/sale/shipping-rates', [
             'headers' => [
                 'Authorization' => 'Bearer '.$this->session->get('userTokenAllegro'),
                 'Accept' => 'application/vnd.allegro.public.v1+json',
                 'Content-Type' => 'application/vnd.allegro.public.v1+json'
             ],
         ]);
-        return $response;
+        return $response->getContent();
     }
+
+    public function getReturnSettings()
+    {
+        $response = $this->client->request('GET', 'https://api.allegro.pl/after-sales-service-conditions/implied-warranties', [
+            'headers' => [
+                'Authorization' => 'Bearer '.$this->session->get('userTokenAllegro'),
+                'Accept' => 'application/vnd.allegro.public.v1+json',
+                'Content-Type' => 'application/vnd.allegro.public.v1+json'
+            ],
+        ]);
+        return $response->getContent();
+    }
+
 
 
     /**
@@ -126,10 +139,10 @@ class AllegroUserManager
     }
 
 
-    public function addOfferToAllegro(Product $product): JsonResponse
+    public function addOfferToAllegro(Product $product, bool $kit): array
     {
         $name = $product->getAllegroTitle();
-        $description = str_ireplace('{auto}', $product->getAuto(), $product->getDes()->getPlDes());
+        $kit == true ? $description = $product->getDescription(): $description = str_ireplace('{auto}', $product->getAuto(), $product->getDes()->getPlDes());
         $categoryId = '257947';
         $upc = $product->getUpc();
         $images = $product->getImages();
@@ -154,12 +167,6 @@ class AllegroUserManager
                   '11323_1'
                 ],
               ],
-              [
-                'id' => '225693',
-                'values' => [
-                    $upc,
-                ]
-              ],
           ],
           'description' => [
             'sections' => [
@@ -175,10 +182,12 @@ class AllegroUserManager
           ],
           'afterSalesServices' => [
             'impliedWarranty' => [
-              'id' => 'bd9ae975-aece-40d5-a81e-00e8dd502425'
+              //'id' => 'bd9ae975-aece-40d5-a81e-00e8dd502425' //Для основного
+                'id' => '042526a0-5a95-4386-8ee0-d8263124b15f',
             ],
             'returnPolicy' => [
-              'id' => '3d9208d3-3ee3-4a76-8e48-5b0fc5c0173e',
+              //'id' => '3d9208d3-3ee3-4a76-8e48-5b0fc5c0173e',//для основоного
+                'id' => 'e93c36ad-cbab-40c1-b354-9de955aa0893',
             ],
           ],
           'location' => [
@@ -220,7 +229,7 @@ class AllegroUserManager
             ],
             'body' => $requestBody,
         ]);
-        return new JsonResponse($response->getContent(), 200, [], true);
+        return json_decode($response->getContent(), true);
     }
 
     public function getOfferFromAllegro($offerId, $json = false)
@@ -262,21 +271,6 @@ class AllegroUserManager
             return json_decode($content, true);
         }
     }
-
-    /*public function putOfferAllegro($allegroOfferId)
-    {
-        $jsonContent = $this->getOfferFromAllegro($allegroOfferId);
-
-        $response = $this->client->request('PUT', 'https://api.allegro.pl/sale/offers/'.$allegroOfferId, [
-            'headers' => [
-                'Authorization' => 'Bearer '.$this->session->get('userTokenAllegro'),
-                'Content-Type' => 'application/vnd.allegro.public.v1+json',
-                'Accept' => 'application/vnd.allegro.public.v1+json',
-            ],
-            'body' => $jsonContent,
-        ]);
-        return new JsonResponse($response->getContent(), 200, [], true);
-    }*/
 
     function GUIDv4 ($trim = true)
     {
@@ -377,9 +371,33 @@ class AllegroUserManager
         }
         catch (\Exception $e)
         {
-            var_dump($e->getMessage());
+            var_dump($e->getCode());
         }
 
         return $response;
+    }
+
+    public function changeQuantity($allegroOffer, $quantity)
+    {
+        $requestBody = [
+            'stock' => [
+                'available' => $quantity,
+                'unit' => 'UNIT',
+            ]
+        ];
+        $requestBody = json_encode($requestBody, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+        try {
+            $response = $this->client->request('PATCH', 'https://api.allegro.pl/sale/product-offers/'.$allegroOffer, [
+                'headers' => [
+                    'Authorization' => 'Bearer '.$this->session->get('userTokenAllegro'),
+                    'Accept' => 'application/vnd.allegro.beta.v2+json',
+                    'Content-Type' => 'application/vnd.allegro.beta.v2+json'
+                ],
+                'body' => $requestBody
+            ])->getContent();
+        }catch (\Exception $e) {
+            return $response['message'] = $e->getMessage();
+        }
+        return json_decode($response, true);
     }
 }

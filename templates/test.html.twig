@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 {% block body %}
-    <a href="https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=a95c7c8a0337479daa2813be1f8cb669&redirect_uri=https://localhost:8000/allAuth&promt=none">
+    {% set token = app.user.allegroUserToken %}
+    <a href="https://allegro.pl/auth/oauth/authorize?response_type=code&client_id={{ token }}&redirect_uri=https://localhost:8000/allAuth&promt=none">
         <button>Авторизоваться</button>
     </a>
 {% endblock %}

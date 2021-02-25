@@ -1,5 +1,6 @@
+const searchInput = document.getElementById('search');
 window.addEventListener('load', () => {
-        const searchInput = document.getElementById('search');
+        showProductsTable()
         const countSelects = [...document.getElementsByClassName('count-products-select')]
         countSelects.forEach(select => select.addEventListener('input', handleCountSelect))
         searchInput.addEventListener('keypress', function (e) {
@@ -46,17 +47,26 @@ function paintTable(html) {
     let table = document.getElementById('mytable')
 
     table.innerHTML = html;
+
+    let myPageLinks = [...document.getElementsByClassName('page-link')]
+    myPageLinks.forEach(link => {
+        link.addEventListener('click', function () {
+            const page = link.value
+            showProductsTable(searchInput.value, page)
+            table.scrollIntoView()
+        })
+    })
 }
 
-function showProductsTable(word = null, page = null) {
-    if (word === null) {
-        fetch('/api/get_products_html?p=1', {
+function showProductsTable(word = null, page = 1) {
+    let url = '/api/get_products_html?p='+page
+    if(word) {
+        url += '&word='+word
+    }
+        fetch(url, {
             method: 'GET'
         })
             .then(async function (response) {
                 paintTable(await response.text())
             })
-    } else {
-        showProductsTableSearch(word, page)
-    }
 }
