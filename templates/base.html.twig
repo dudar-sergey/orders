@@ -13,7 +13,7 @@
         {% endblock %}
     </head>
     <body>
-    {% if app.user is defined %}
+    {% if app.user != null %}
     {% set token = app.user.allegroUserToken %}
     {% endif %}
     <div class="wrapper">
@@ -81,7 +81,7 @@
                 <div class="container-fluid">
                     <div class="collapse navbar-collapse justify-content-end" id="navigation">
                         <ul class="navbar-nav ml-auto">
-                            {% if app.user is defined %}
+                            {% if app.user != null %}
                             <li class="nav-item">
                                 <a class="nav-link" href="https://allegro.pl/auth/oauth/authorize?response_type=code&client_id={{ token }}&redirect_uri=https://localhost:8000/allAuth&promt=none">
                                     <span>Авторизоваться</span>
