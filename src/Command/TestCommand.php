@@ -10,6 +10,7 @@ use App\Entity\AllegroOffer;
 use App\Entity\Images;
 use App\Entity\Product;
 use App\Entity\Profile;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class TestCommand extends Command
 {
@@ -27,6 +29,7 @@ class TestCommand extends Command
     private $client;
     private $statistic;
     private $am;
+    private $pe;
     protected function configure()
     {
         $this
@@ -36,13 +39,14 @@ class TestCommand extends Command
         ;
     }
 
-    public function __construct(Statistic $statistic, AllegroUserManager $am, Add $add, EntityManagerInterface $em, string $name = null)
+    public function __construct(Statistic $statistic, AllegroUserManager $am, Add $add, EntityManagerInterface $em, string $name = null, UserPasswordEncoderInterface $pe)
     {
         parent::__construct($name);
         $this->add = $add;
         $this->em = $em;
         $this->statistic = $statistic;
         $this->am = $am;
+        $this->pe = $pe;
         $this->client = HttpClient::create([
             //'proxy'=>'http://wNogF3:k1VdVC@185.183.161.196:8000',
         ]);
@@ -53,7 +57,9 @@ class TestCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $articles = [];
         $arg1 = $input->getArgument('arg1');
-        $this->syncFromAllegro();
+        $user = $this->em->getRepository(User::class)->find(2);
+        $user->setPassword($user, '1$932##hH8EkKsj&677');
+        $this->em->flush();
 
         return Command::SUCCESS;
     }
