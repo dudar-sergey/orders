@@ -5,8 +5,8 @@ const TEN_MINUTES = 60 * 10 * 1000
 const ELEVEN_HOURS = 1000 * 60 * 60 * 11
 const API_TOKEN = 'SECRET_WORD_FOR_MY_API322'
 const URLS = {
-    UPDATE_ALLEGRO_TOKENS: 'https://localhost:8000/allegro_auth/update_tokens',
-    UPDATE_ORDERS: 'https://localhost:8000/order_api/update_order'
+    UPDATE_ALLEGRO_TOKENS: 'https://api288gg987124.greenauto.site/allegro_auth/update_tokens',
+    UPDATE_ORDERS: 'https://api288gg987124.greenauto.site/order_api/update_order'
 }
 
 function updateToken() {
