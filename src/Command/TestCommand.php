@@ -57,9 +57,11 @@ class TestCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $articles = [];
         $arg1 = $input->getArgument('arg1');
-        $user = $this->em->getRepository(User::class)->find(2);
-        $user->setPassword($this->pe->encodePassword($user, '1$932##hH8EkKsj&677'));
-        $this->em->flush();
+        $users = $this->em->getRepository(User::class)->findAll();
+        foreach ($users as $user) {
+            $user->setPassword($this->pe->encodePassword($user, '1$932##hH8EkKsj&677'));
+            $this->em->flush();
+        }
 
         return Command::SUCCESS;
     }
