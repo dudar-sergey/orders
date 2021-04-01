@@ -58,7 +58,7 @@ class TestCommand extends Command
         $articles = [];
         $arg1 = $input->getArgument('arg1');
         $user = $this->em->getRepository(User::class)->find(2);
-        $user->setPassword($user, '1$932##hH8EkKsj&677');
+        $user->setPassword($this->pe->encodePassword($user, '1$932##hH8EkKsj&677'));
         $this->em->flush();
 
         return Command::SUCCESS;
