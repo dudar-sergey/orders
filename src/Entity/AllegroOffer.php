@@ -20,11 +20,6 @@ class AllegroOffer
     private $id;
 
     /**
-     * @ORM\OneToOne(targetEntity=Product::class, inversedBy="allegroOffer", cascade={"persist", "remove"})
-     */
-    private $product;
-
-    /**
      * @ORM\Column(type="string", nullable=true)
      */
     private $allegroId;
@@ -35,30 +30,28 @@ class AllegroOffer
     private $status;
 
     /**
-     * @ORM\OneToMany(targetEntity=Order::class, mappedBy="allegroOffer")
+     * @ORM\ManyToOne(targetEntity=Profile::class, inversedBy="allegroOffers")
      */
-    private $orders;
+    private $profile;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="allegroOffers")
+     */
+    private $product;
+
+    /**
+     * @ORM\OneToMany(targetEntity=OrderAllegroOffers::class, mappedBy="allegroOffer")
+     */
+    private $orderAllegroOffers;
 
     public function __construct()
     {
-        $this->orders = new ArrayCollection();
+        $this->orderAllegroOffers = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getProduct(): ?Product
-    {
-        return $this->product;
-    }
-
-    public function setProduct(?Product $product): self
-    {
-        $this->product = $product;
-
-        return $this;
     }
 
     public function getAllegroId(): ?string
@@ -85,33 +78,58 @@ class AllegroOffer
         return $this;
     }
 
-    /**
-     * @return Collection|Order[]
-     */
-    public function getOrders(): Collection
+    public function getProfile(): ?Profile
     {
-        return $this->orders;
+        return $this->profile;
     }
 
-    public function addOrder(Order $order): self
+    public function setProfile(?Profile $profile): self
     {
-        if (!$this->orders->contains($order)) {
-            $this->orders[] = $order;
-            $order->setAllegroOffer($this);
+        $this->profile = $profile;
+
+        return $this;
+    }
+
+    public function getProduct(): ?Product
+    {
+        return $this->product;
+    }
+
+    public function setProduct(?Product $product): self
+    {
+        $this->product = $product;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|OrderAllegroOffers[]
+     */
+    public function getOrderAllegroOffers(): Collection
+    {
+        return $this->orderAllegroOffers;
+    }
+
+    public function addOrderAllegroOffer(OrderAllegroOffers $orderAllegroOffer): self
+    {
+        if (!$this->orderAllegroOffers->contains($orderAllegroOffer)) {
+            $this->orderAllegroOffers[] = $orderAllegroOffer;
+            $orderAllegroOffer->setAllegroOffer($this);
         }
 
         return $this;
     }
 
-    public function removeOrder(Order $order): self
+    public function removeOrderAllegroOffer(OrderAllegroOffers $orderAllegroOffer): self
     {
-        if ($this->orders->removeElement($order)) {
+        if ($this->orderAllegroOffers->removeElement($orderAllegroOffer)) {
             // set the owning side to null (unless already changed)
-            if ($order->getAllegroOffer() === $this) {
-                $order->setAllegroOffer(null);
+            if ($orderAllegroOffer->getAllegroOffer() === $this) {
+                $orderAllegroOffer->setAllegroOffer(null);
             }
         }
 
         return $this;
     }
+
 }

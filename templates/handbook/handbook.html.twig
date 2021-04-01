@@ -1,20 +1,51 @@
 {% extends 'base.html.twig' %}
 {% block body %}
     <div class="container-fluid">
-        <div class="ml-5">
+        <div class="row justify-content-center">
+            <h2 class="text-muted">Товарные группы</h2>
+        </div>
             <div class="row">
-                <h3>Группы товаров</h3>
-            </div>
-            <div class="row ">
-                <ul class="list-group">
-                    {% for description in descriptions %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ description.enName ?? description.plName }}
-                            <a href="{{ path('editGroup', {'groupId': description.id}) }}"><span class="badge badge-primary badge-pill ml-5">Изменить</span></a>
-                        </li>
-                    {% endfor %}
-                </ul>
+                <div class="col-lg-6">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                <th>Id</th>
+                                <th>Название</th>
+                                <th>Изменить</th>
+                                </thead>
+                                <tbody id="description-body">
+                                {% for description in descriptions %}
+                                    <tr>
+                                        <td><b>{{ description.id }}</b></td>
+                                        <td>{{ description.ruName }}</td>
+                                        <td><a href="{{ path('editGroup', {'groupId': description.id}) }}"><span class="badge badge-primary badge-pill ml-5">Изменить</span></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h3>Добавить новую группу товаров</h3>
+                        </div>
+                        <div class="card-body">
+                            <input class="form-control" id="group-name-input" type="text" placeholder="Введите название группы">
+                            <button id="add-group-btn" class="btn mt-2">
+                                Добавить группу
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/myJs/handbook/handbook.js') }}"></script>
 {% endblock %}

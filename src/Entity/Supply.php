@@ -149,4 +149,13 @@ class Supply
 
         return $this;
     }
+
+    public function hasProduct(Product $product)
+    {
+        if($this->supplyProducts->contains($product)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

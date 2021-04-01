@@ -5,12 +5,14 @@ namespace App\Controller;
 
 
 use App\Add\Add;
+use App\Add\Statistic;
 use App\ebay\Allegro;
 use App\ebay\AllegroUserManager;
 use App\Entity\Description;
 use App\Entity\Order;
 use App\Entity\PaymentStatus;
 use App\Entity\Product;
+use App\Entity\Profile;
 use App\Entity\Sale;
 use App\Entity\Supply;
 use App\Form\CreateOfferType;
@@ -20,6 +22,7 @@ use App\Form\MNumberType;
 use App\Form\ProductType;
 use App\Form\SaleType;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\DocBlock\Tags\Throws;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -37,13 +40,15 @@ class MainController extends AbstractController
     protected $em;
     protected $session;
     protected $am;
+    private $statistic;
 
-    public function __construct(Ebay $ebay, EntityManagerInterface $em, SessionInterface $session, AllegroUserManager $am)
+    public function __construct(Ebay $ebay, EntityManagerInterface $em, SessionInterface $session, AllegroUserManager $am, Statistic $statistic)
     {
         $this->ebay = $ebay;
         $this->em = $em;
         $this->session = $session;
         $this->am = $am;
+        $this->statistic = $statistic;
     }
 
     /**
@@ -174,7 +179,7 @@ class MainController extends AbstractController
      */
     public function showOrders(): Response
     {
-        $orders = $this->em->getRepository(Order::class)->findAllByDate($this->getUser());
+        $orders = $this->em->getRepository(Order::class)->findAllByDate();
         $paymentStatuses = $this->em->getRepository(PaymentStatus::class)->findAll();
         $forRender = [
           'orders'  => $orders,
@@ -194,7 +199,7 @@ class MainController extends AbstractController
     }
 
     /**
-     * @Route("/allAuth", name="test2")
+     * @Route("/allAuth", name="allegroAuth")
      * @param Request $request
      * @return RedirectResponse
      */
@@ -202,12 +207,17 @@ class MainController extends AbstractController
     {
         $user = $this->getUser();
         $code = $request->get('code');
+        $profile = $this->session->get('currentProfile');
+        /** @var Profile $currentProfile */
+        $currentProfile = $this->em->getRepository(Profile::class)->find($profile->getId());
         if($code)
         {
-            $result = $this->am->getTokenForUser($code, $user->getAllegroUserToken(), $user->getAllegroApplicationToken());
-            $this->session->set('userTokenAllegro', $result);
+            $result = $this->am->getTokenForUser($code, $currentProfile->getClientId(), $currentProfile->getClientSecret());
+            $currentProfile->setAllegroAccessToken($result['accessToken']);
+            $currentProfile->setAllegroRefreshToken($result['refreshToken']);
+            $this->em->flush();
         }
-        return $this->redirectToRoute('products');
+        return $this->redirectToRoute('userprofile');
     }
 
     /**
@@ -240,7 +250,8 @@ class MainController extends AbstractController
             {
                 $files = $request->files->all('m_number');
                 $result = $add->addDefaultSupply($data, $files);
-                return $this->redirectToRoute('supplies');
+                //return $this->redirectToRoute('supplies');
+                return $this->render('products/additem.html.twig', []);
             }
 
         }
@@ -285,26 +296,15 @@ class MainController extends AbstractController
 
 
     /**
-     * @Route("/supplies/synctoeBay/{supplyId}", name="syncToEbay")
-     * @param $supplyId
+     * @Route("/products/synctoeBay/{productId}", name="syncToEbay")
+     * @param $productId
      * @param Add $add
-     * @return RedirectResponse
+     * @return JsonResponse
      */
-    public function syncToEbay($supplyId, Add $add): RedirectResponse
+    public function syncToEbay($productId, Add $add): JsonResponse
     {
-        /** @var Supply $supply */
-        $supply = $this->em->getRepository(Supply::class)->find($supplyId);
-        if($supply)
-        {
-            if(!$supply->getSync())
-            {
-                $add->syncToEbay($supply->getProducts());
-                $supply->setSync(true);
-                $this->em->persist($supply);
-                $this->em->flush();
-            }
-        }
-        return $this->redirectToRoute('supplies');
+        $product = $this->em->getRepository(Product::class)->find($productId);
+        return $this->ebay->addItem($product);
     }
 
     /**
@@ -350,21 +350,15 @@ class MainController extends AbstractController
     public function cardItem($itemId, Request $request): Response
     {
         $forRender = [];
+        $profile = $this->session->get('currentProfile') ?? null;
         $product = $this->em->getRepository(Product::class)->find($itemId);
-        $form = $this->createForm(ProductType::class, $product);
-        $form->handleRequest($request);
-
-        if($form->isSubmitted() && $form->isValid())
-        {
-            $product->setName($form->getData()->getName());
-            $product->setQuantity($form->getData()->getQuantity());
-            $this->em->flush();
-            return $this->redirectToRoute('cardItem', ['itemId' => $itemId]);
-        }
+        $descriptions = $this->em->getRepository(Description::class)->findAll();
         $forRender = [
             'product' => $product,
-            'form' => $form->createView(),
-            'refer' => $request->headers->get('referer')
+            'refer' => $request->headers->get('referer'),
+            'allegroOffer' => $product->getAllegroOffer($profile),
+            'deliveryMethod' => $product->getDeliveryMethod($profile),
+            'deses' => $descriptions
         ];
         return $this->render('products/card.html.twig', $forRender);
     }
@@ -377,7 +371,19 @@ class MainController extends AbstractController
     public function sales(): Response
     {
         $sales = $this->em->getRepository(Sale::class)->findAll();
-        $forRender['sales'] = $sales;
+        $d2 = new \DateTime('-30 days');
+        usort($sales, function ($sales, $b) {
+            if ($sales->getOrder()->getDate()->format('d-m-Y') == $b->getOrder()->getDate()->format('d-m-Y')) {
+                return 0;
+            }
+            return (strtotime($sales->getOrder()->getDate()->format('d-m-Y')) > strtotime($b->getOrder()->getDate()->format('d-m-Y'))) ? -1 : 1;
+        });
+        $lastDaySales = $this->em->getRepository(Sale::class)->findByDate($d2, new \DateTime('now'));
+        $forRender = [
+            'sales' => $sales,
+            'lastDaysSales' => $lastDaySales,
+            'sum' => $this->statistic->getSaleStatistic($lastDaySales),
+        ];
 
         return $this->render('sales/sales.html.twig', $forRender);
     }
@@ -391,20 +397,7 @@ class MainController extends AbstractController
      */
     public function addSale(Request $request, Add $add): Response
     {
-        $form = $this->createForm(SaleType::class);
-        $form->handleRequest($request);
-
-        if($form->isSubmitted() && $form->isValid())
-        {
-            $data = $form->getData();
-            if($data['createAt'] && $data['orderNumber'] && $data['product'])
-            {
-                $add->addSale($data);
-                return $this->redirectToRoute('sales');
-            }
-        }
-
-        $forRender['form'] = $form->createView();
+       $forRender = [];
 
         return $this->render('sales/addsale.html.twig', $forRender);
 
@@ -491,26 +484,12 @@ class MainController extends AbstractController
     public function syncFromAllegro(): RedirectResponse
     {
         try{
-            $this->am->getOffersFromAllegro();
+            $this->am->getOffersFromAllegro($this->session->get('currentProfile'));
 
         }catch (\Exception $e){
             $this->addFlash('notice', 'Ошибка синхронизации');
         }
-        //return $this->redirectToRoute('products');
-    }
-
-    /**
-     * @Route("/orders/sync_from_allegro", name="syncOrdersFromAllegro")
-     */
-    public function syncOrdersFromAllegro(): RedirectResponse
-    {
-        try {
-            $this->am->syncOrdersFromAllegro($this->getUser());
-        }catch(\Exception $e){
-            $this->addFlash('notice','Ошибка подключения к Allegro');
-        }
-
-        return $this->redirectToRoute('orders');
+        return $this->redirectToRoute('products');
     }
 
     /**
@@ -525,5 +504,16 @@ class MainController extends AbstractController
         return $this->render('orders/card.html.twig', [
             'response' => json_decode($response, true)
         ]);
+    }
+
+    /**
+     * @Route ("/dynamics", name="dynamics")
+     */
+    public function showDynamics(): Response
+    {
+        $forRender = [
+
+        ];
+        return $this->render('dynamics/dynamics.html.twig', $forRender);
     }
 }

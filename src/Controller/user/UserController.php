@@ -3,10 +3,11 @@
 
 namespace App\Controller\user;
 
-use App\Form\MyUserType;
+use App\Entity\Profile;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,10 +19,12 @@ use Symfony\Component\HttpFoundation\Response;
 class UserController extends AbstractController
 {
     private $em;
+    private $session;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, SessionInterface $session)
     {
         $this->em = $em;
+        $this->session = $session;
     }
 
     /**
@@ -32,17 +35,15 @@ class UserController extends AbstractController
     public function userAction(Request $request): Response
     {
         $user = $this->getUser();
-        $form = $this->createForm(MyUserType::class, $user);
-        $form->handleRequest($request);
-
-        if($form->isSubmitted())
-        {
-            $user = $form->getData();
-            $this->em->flush();
+        $profiles = $user->getProfiles();
+        /** @var Profile $currentProfile */
+        $currentProfile = $this->session->get('currentProfile') ?? null;
+        if($currentProfile) {
+            $forRender['allegroAuthUrl'] = 'https://allegro.pl/auth/oauth/authorize?response_type=code&client_id='.$currentProfile->getClientId().'&redirect_uri=https://localhost:8000/allAuth&promt=none';
         }
-
         $forRender = [
-            'form' => $form->createView()
+            'profiles' => $profiles,
+            'currentProfile' => $currentProfile,
         ];
         return $this->render('User/profile.html.twig', $forRender);
     }

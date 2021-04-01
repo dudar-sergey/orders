@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Description;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -14,9 +15,12 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class DescriptionRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $em;
+
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $em)
     {
         parent::__construct($registry, Description::class);
+        $this->em = $em;
     }
 
     // /**
@@ -47,4 +51,14 @@ class DescriptionRepository extends ServiceEntityRepository
         ;
     }
 
+    public function createGroup(string $ruName): Description
+    {
+        $group = new Description();
+        $group
+            ->setRuName($ruName);
+        $this->em->persist($group);
+        $this->em->flush();
+
+        return $group;
+    }
 }

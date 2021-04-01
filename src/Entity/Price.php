@@ -32,6 +32,11 @@ class Price
      */
     private $de;
 
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $en;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -69,6 +74,18 @@ class Price
     public function setDe(?float $de): self
     {
         $this->de = $de;
+
+        return $this;
+    }
+
+    public function getEn(): ?float
+    {
+        return $this->en;
+    }
+
+    public function setEn(?float $en): self
+    {
+        $this->en = $en;
 
         return $this;
     }

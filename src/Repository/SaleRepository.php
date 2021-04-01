@@ -2,8 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\Order;
 use App\Entity\Sale;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -14,10 +16,44 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class SaleRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $em;
+
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $em)
     {
         parent::__construct($registry, Sale::class);
+        $this->em = $em;
     }
+
+    public function createSale(Order $order): Sale
+    {
+        $sale = new Sale();
+        $sale
+            ->setOrder($order)
+            ->setCreateAt($order->getDate())
+        ;
+        $this->em->persist($sale);
+        $this->em->flush();
+
+        return $sale;
+    }
+
+    public function findByDate(\DateTimeInterface $startDate, \DateTimeInterface $endDate = null)
+    {
+        if($endDate == null) {
+            $endDate = new \DateTime('now');
+        }
+        $query = $this->createQueryBuilder('o');
+        $query
+            ->select('o')
+            ->where('o.createAt >= :startDate')
+            ->andWhere('o.createAt <= :endDate')
+            ->setParameter('startDate', $startDate->format('Y-m-d'))
+            ->setParameter('endDate', $endDate->format('Y-m-d'));
+
+        return $query->getQuery()->getResult();
+
+    }
+
 
     // /**
     //  * @return Sale[] Returns an array of Sale objects

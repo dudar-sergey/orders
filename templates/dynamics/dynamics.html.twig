@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+{#    <button class="btn" id="test">Тестировать</button>#}
+    <div class="container-fluid">
+        <div class="row mt-2">
+            <div class="col-lg-12">
+                <div class="card shadow">
+                    <h3 class="ml-3">Период</h3>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-lg-4"><label for="start-date">От</label><input id="start-date" type="date"
+                                                                                           class="form-control dates"></div>
+                            <div class="col-lg-4"><label for="end-date">До</label><input id="end-date" type="date"
+                                                                                         class="form-control dates"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                            <th>Товар</th>
+                            <th>Скорость продаж</th>
+                            <th>Наличие</th>
+                            </thead>
+                            <tbody id="table-body">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/myJs/dynamics/dynamics.js') }}"></script>
+{% endblock %}

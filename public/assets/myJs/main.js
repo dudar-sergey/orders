@@ -2,6 +2,7 @@ window.addEventListener('load', () => {
     href();
     $('.tsort').tsort();
     $(".chosen-select").chosen({max_selected_options: 5});
+
 })
 
 function href(){
@@ -13,4 +14,15 @@ function href(){
             link[i].classList.add('active');
         }
     }
+}
+
+function showMessage(message, time) {
+    let notification = document.getElementById('notification')
+    notification.classList.add('my-active')
+    let divMessage = document.getElementById('message')
+    divMessage.innerText = message
+    setTimeout(() => {
+        notification.classList.remove('my-active')
+        message.innerText = ''
+    }, time)
 }

@@ -52,6 +52,16 @@ class Description
      */
     private $productGroup;
 
+    /**
+     * @ORM\Column(type="string", length=2000, nullable=true)
+     */
+    private $allegroCategoryId;
+
+    /**
+     * @ORM\Column(type="string", length=3000, nullable=true)
+     */
+    private $ruName;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -137,6 +147,30 @@ class Description
     public function setProductGroup(?ProductGroup $productGroup): self
     {
         $this->productGroup = $productGroup;
+
+        return $this;
+    }
+
+    public function getAllegroCategoryId(): ?string
+    {
+        return $this->allegroCategoryId;
+    }
+
+    public function setAllegroCategoryId(?string $allegroCategoryId): self
+    {
+        $this->allegroCategoryId = $allegroCategoryId;
+
+        return $this;
+    }
+
+    public function getRuName(): ?string
+    {
+        return $this->ruName;
+    }
+
+    public function setRuName(?string $ruName): self
+    {
+        $this->ruName = $ruName;
 
         return $this;
     }

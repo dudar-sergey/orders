@@ -30,7 +30,7 @@ class SupplyProductRepository extends ServiceEntityRepository
         $supplyProduct = new SupplyProduct();
 
         $supplyProduct
-            ->setQuantity($quantity ?? null)
+            ->setQuantity($quantity)
             ->setProduct($product)
             ->setSupply($supply);
         if ($product)

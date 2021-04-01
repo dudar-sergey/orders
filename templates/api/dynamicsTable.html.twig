@@ -1,0 +1,7 @@
+{% for position in positions|sort((a, b) => b.speed <=> a.speed) %}
+    <tr>
+        <td>{{ position.product.allegroTitle }}</td>
+        <td>{{ position.speed|number_format(3) }}</td>
+        <td>{{ position.product.quantity }}</td>
+    </tr>
+{% endfor %}

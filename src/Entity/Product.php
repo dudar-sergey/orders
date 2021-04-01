@@ -30,7 +30,7 @@ class Product
     private $quantity;
 
     /**
-     * @ORM\Column(type="string", length=1000, nullable=true)
+     * @ORM\Column(type="string", length=500, nullable=true)
      */
     private $upc;
 
@@ -38,21 +38,6 @@ class Product
      * @ORM\Column(type="float", nullable=true)
      */
     private $price;
-
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private $sync;
-
-    /**
-     * @ORM\Column(type="string", length=1000, nullable=true)
-     */
-    private $eId;
-
-    /**
-     * @ORM\Column(type="string", length=1000, nullable=true)
-     */
-    private $url;
 
     /**
      * @ORM\Column(type="string", length=1000, nullable=true)
@@ -64,16 +49,10 @@ class Product
      */
     private $description;
 
-
     /**
      * @ORM\ManyToMany(targetEntity=Product::class)
      */
     private $analogs;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=ProductGroup::class)
-     */
-    private $productGroup;
 
     /**
      * @ORM\Column(type="string", length=1000, nullable=true)
@@ -115,11 +94,6 @@ class Product
     private $images;
 
     /**
-     * @ORM\OneToOne(targetEntity=AllegroOffer::class, mappedBy="product", cascade={"persist", "remove"})
-     */
-    private $allegroOffer;
-
-    /**
      * @ORM\OneToOne(targetEntity=EbayOffer::class, mappedBy="product", cascade={"persist", "remove"})
      */
     private $ebayOffer;
@@ -140,9 +114,30 @@ class Product
     private $allegroTitle;
 
     /**
-     * @ORM\ManyToOne(targetEntity=AllegroDeliveryMethod::class)
+     * @ORM\OneToMany(targetEntity=AllegroOffer::class, mappedBy="product")
      */
-    private $deliveryMethod;
+    private $allegroOffers;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ProductDeliveryMethod::class, mappedBy="product")
+     */
+    private $productDeliveryMethod;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=DeliveryCategory::class, inversedBy="products")
+     */
+    private $category;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Order::class, mappedBy="products")
+     */
+    private $orders;
+
+    /**
+     * @ORM\OneToMany(targetEntity=OutOfStock::class, mappedBy="product")
+     */
+    private $outOfStocks;
+
 
     public function __toString(): string
     {
@@ -155,6 +150,9 @@ class Product
         $this->kitProducts = new ArrayCollection();
         $this->images = new ArrayCollection();
         $this->supplyProducts = new ArrayCollection();
+        $this->allegroOffers = new ArrayCollection();
+        $this->orders = new ArrayCollection();
+        $this->outOfStocks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -210,42 +208,6 @@ class Product
         return $this;
     }
 
-    public function getSync(): ?bool
-    {
-        return $this->sync;
-    }
-
-    public function setSync(?bool $sync): self
-    {
-        $this->sync = $sync;
-
-        return $this;
-    }
-
-    public function getEId(): ?string
-    {
-        return $this->eId;
-    }
-
-    public function setEId(?string $eId): self
-    {
-        $this->eId = $eId;
-
-        return $this;
-    }
-
-    public function getUrl(): ?string
-    {
-        return $this->url;
-    }
-
-    public function setUrl(?string $url): self
-    {
-        $this->url = $url;
-
-        return $this;
-    }
-
     public function getArticul(): ?string
     {
         return $this->articul;
@@ -292,18 +254,6 @@ class Product
         if ($this->analogs->contains($analog)) {
             $this->analogs->removeElement($analog);
         }
-
-        return $this;
-    }
-
-    public function getProductGroup(): ?ProductGroup
-    {
-        return $this->productGroup;
-    }
-
-    public function setProductGroup(?ProductGroup $productGroup): self
-    {
-        $this->productGroup = $productGroup;
 
         return $this;
     }
@@ -417,24 +367,6 @@ class Product
         return $this;
     }
 
-    public function getAllegroOffer(): ?AllegroOffer
-    {
-        return $this->allegroOffer;
-    }
-
-    public function setAllegroOffer(?AllegroOffer $allegroOffer): self
-    {
-        $this->allegroOffer = $allegroOffer;
-
-        // set (or unset) the owning side of the relation if necessary
-        $newProduct = null === $allegroOffer ? null : $this;
-        if ($allegroOffer->getProduct() !== $newProduct) {
-            $allegroOffer->setProduct($newProduct);
-        }
-
-        return $this;
-    }
-
     public function getEbayOffer(): ?EbayOffer
     {
         return $this->ebayOffer;
@@ -520,15 +452,152 @@ class Product
         return $this;
     }
 
-    public function getDeliveryMethod(): ?AllegroDeliveryMethod
+    public function getAllegroOffer($profile)
     {
-        return $this->deliveryMethod;
+        foreach ($this->allegroOffers as $allegroOffer) {
+            if($profile->getId() == $allegroOffer->getProfile()->getId()) {
+                return $allegroOffer;
+            }
+        }
+        return null;
     }
 
-    public function setDeliveryMethod(?AllegroDeliveryMethod $deliveryMethod): self
+    public function getAllegroOffers()
     {
-        $this->deliveryMethod = $deliveryMethod;
+        return $this->allegroOffers;
+    }
+
+    public function addAllegroOffer(AllegroOffer $allegroOffer): self
+    {
+        if (!$this->allegroOffers->contains($allegroOffer)) {
+            $this->allegroOffers[] = $allegroOffer;
+            $allegroOffer->setProduct($this);
+        }
 
         return $this;
     }
+
+    public function removeAllegroOffer(AllegroOffer $allegroOffer): self
+    {
+        if ($this->allegroOffers->removeElement($allegroOffer)) {
+            // set the owning side to null (unless already changed)
+            if ($allegroOffer->getProduct() === $this) {
+                $allegroOffer->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ProductDeliveryMethod[]
+     */
+    public function getProductDeliveryMethods(): Collection
+    {
+        return $this->productDeliveryMethod;
+    }
+
+    public function getDeliveryMethod(Profile $profile)
+    {
+        if(!$this->category)
+            return null;
+        foreach ($this->category->getAllegroDeliveryMethods() as $deliveryMethod) {
+            if($profile->getId() == $deliveryMethod->getProfile()->getId()) {
+                return $deliveryMethod;
+            }
+        }
+        return null;
+    }
+
+    public function addProductDeliveryMethod(ProductDeliveryMethod $productDeliveryMethod): self
+    {
+        if (!$this->productDeliveryMethod->contains($productDeliveryMethod)) {
+            $this->productDeliveryMethod[] = $productDeliveryMethod;
+            $productDeliveryMethod->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductDeliveryMethod(ProductDeliveryMethod $productDeliveryMethod): self
+    {
+        if ($this->productDeliveryMethod->removeElement($productDeliveryMethod)) {
+            // set the owning side to null (unless already changed)
+            if ($productDeliveryMethod->getProduct() === $this) {
+                $productDeliveryMethod->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getCategory(): ?DeliveryCategory
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?DeliveryCategory $category): self
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Order[]
+     */
+    public function getOrders(): Collection
+    {
+        return $this->orders;
+    }
+
+    public function addOrder(Order $order): self
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders[] = $order;
+            $order->addProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(Order $order): self
+    {
+        if ($this->orders->removeElement($order)) {
+            $order->removeProduct($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|OutOfStock[]
+     */
+    public function getOutOfStocks(): Collection
+    {
+        return $this->outOfStocks;
+    }
+
+    public function addOutOfStock(OutOfStock $outOfStock): self
+    {
+        if (!$this->outOfStocks->contains($outOfStock)) {
+            $this->outOfStocks[] = $outOfStock;
+            $outOfStock->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOutOfStock(OutOfStock $outOfStock): self
+    {
+        if ($this->outOfStocks->removeElement($outOfStock)) {
+            // set the owning side to null (unless already changed)
+            if ($outOfStock->getProduct() === $this) {
+                $outOfStock->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
 }

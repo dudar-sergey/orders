@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h3>Оформить возврат товара</h3>
+                    </div>
+                    <div class="card-body">
+                        <input placeholder="Поиск по заказам" class="form-control" type="text" id="search-input">
+                        <table class="table border mt-2">
+                            <thead>
+                            <th><input type="checkbox" id="all-checkbox"></th>
+                            <th>Статус</th>
+                            <th>Имя клиента</th>
+                            <th>Товар</th>
+                            <th>Дата</th>
+                            </thead>
+                            <tbody id="table-body">
+                            </tbody>
+                        </table>
+                        <input placeholder="Причина возврата" class="form-control mt-5" type="text" id="reason">
+                        <select class="form-control mt-2" type="text" id="state">
+                            <option disabled selected value="-1">Выберите состояние</option>
+                            <option value="1">Новое</option>
+                            <option value="2">Поврежденное</option>
+                            <option value="3">Брак</option>
+                        </select>
+                        <button class="btn btn-info mt-3" id="add-button">
+                            Доабвить
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h3>История возвратов</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table border mt-2">
+                            <thead>
+                            <th>Клиент</th>
+                            <th>Дата</th>
+                            </thead>
+                            <tbody id="refunds-body">
+                            {% for refund in refunds %}
+                                <tr>
+                                    <td>{{ refund.refundOrder.buyer }}</td>
+                                    <td>{{ refund.createAt|date('d-m-Y') }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+<script src="{{ asset('assets/myJs/refund/refund.js') }}"></script>
+{% endblock %}

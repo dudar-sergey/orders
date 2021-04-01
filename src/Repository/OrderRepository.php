@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Controller\user\UserController;
 use App\Entity\AllegroOffer;
 use App\Entity\Order;
+use App\Entity\Product;
+use App\Entity\Profile;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -36,44 +38,78 @@ class OrderRepository extends ServiceEntityRepository
      * - Date date
      * - placement
      * - allegroId
+     * @param Profile|null $profile
      * @return Order
      */
-    public function createUpdateOrder($data, $user): Order
+    public function createOrder($data, Profile $profile = null): Order
     {
-        /** @var AllegroOffer $allegroOffer */
-        $allegroOffer = $this->em->getRepository(AllegroOffer::class)->findOneBy(['allegroId' => $data['allegroOfferId']]);
+        $order = new Order();
         $price = $data['price'];
         $buyer = $data['buyer'];
-        $payment = $data['payment'];
+        $payment = $data['payment'] ?? null;
         $date = $data['date'];
         $placement = $data['placement'];
-        $allegroId = $data['allegroId'];
-        $order = $this->findOneBy(['allegroId' => $allegroId]);
-        if(!$order)
-            $order = new Order();
+        $allegroId = $data['allegroId'] ?? null;
+        $product = $data['product'] ?? null;
         $order
-            ->setAllegroOffer($allegroOffer)
             ->setPrice($price)
             ->setBuyer($buyer)
             ->setPayment($payment)
             ->setDate($date)
             ->setPlacement($placement)
             ->setAllegroId($allegroId)
-            ->setUser($user);
+            ->setProfile($profile)
+            ->setProduct($product)
         ;
         $this->em->persist($order);
         $this->em->flush();
         return $order;
     }
 
-    public function findAllByDate($user)
+    public function updateOrder(Order $order, string $status) {
+        $order
+            ->setPayment($status);
+        $this->em->flush();
+    }
+
+    public function findAllByDate()
     {
         return $this->createQueryBuilder('o')
-            ->where('o.user = :user')
-            ->setParameter('user', $user->getId())
             ->orderBy('o.date', 'desc')
             ->getQuery()
             ->getResult()
             ;
+    }
+
+    public function getOrders(string $word = null, int $limit = null, int $offset = null)
+    {
+        $query = $this->createQueryBuilder('o');
+        if(!$word) {
+            return $this->findBy([], [], $limit, $offset);
+        } else {
+            $query
+                ->where('o.buyer LIKE :word')
+                ->orWhere('o.allegroId LIKE :word')
+                ->setMaxResults($limit)
+                ->setFirstResult($offset)
+                ->setParameter('word', '%'.$word.'%');
+        }
+
+        return $query->getQuery()->getResult();
+    }
+
+    public function findByDate(\DateTimeInterface $startDate, \DateTimeInterface $endDate = null)
+    {
+        if($endDate == null) {
+            $endDate = new \DateTime('now');
+        }
+        $query = $this->createQueryBuilder('o');
+        $query
+            ->select('o')
+            ->where('o.date >= :startDate')
+            ->andWhere('o.date <= :endDate')
+            ->setParameter('startDate', $startDate->format('Y-m-d'))
+            ->setParameter('endDate', $endDate->format('Y-m-d'));
+        return $query->getQuery()->getResult();
     }
 }

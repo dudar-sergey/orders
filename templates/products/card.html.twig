@@ -11,11 +11,20 @@
             <div class="col xl-6">
                 <div class="card shadow">
                     <div class="card-body">
-                        <label for="art">Артикул</label><input type="text" readonly value="{{ product.articul }}" class="form-control mt-3 mb-3" id="art">
-                        <label for="name">Имя</label><input value="{{ product.name }}" type="text" id="name" class="form-control mt-3 mb-3">
-                        <label for="quantity">Количество</label><input value="{{ product.quantity }}" type="text" id="quantity" class="form-control mt-3 mb-3">
-                        <label for="price">Цена</label><input type="text" readonly value="{{ product.price }}" class="form-control mt-3 mb-3" id="price">
-                        <button value="{{ product.id }}" class="btn btn-outline-secondary" id="update-btn" name="submit">Обновить</button>
+                        <label for="art">Артикул</label><input type="text" readonly value="{{ product.articul }}"
+                                                               class="form-control mb-3" id="art">
+                        <label for="name">Имя</label><input value="{{ product.name }}" type="text" id="name"
+                                                            class="form-control mb-3">
+                        <label for="allegro-name">Название Allegro</label><input value="{{ product.AllegroTitle }}"
+                                                                                 type="text" id="allegro-name"
+                                                                                 class="form-control mb-3">
+                        <label for="quantity">Количество</label><input value="{{ product.quantity }}" type="text"
+                                                                       id="quantity" class="form-control mb-3">
+                        <label for="price">Цена</label><input type="text" readonly value="{{ product.price }}"
+                                                              class="form-control mb-3" id="price">
+                        <button value="{{ product.id }}" class="btn btn-outline-secondary" id="update-btn"
+                                name="submit">Обновить
+                        </button>
                     </div>
                 </div>
             </div>
@@ -23,6 +32,11 @@
                 <div class="card striped-with-hover shadow">
                     <div class="card-header text-center">
                         <h2>Информация о публикациях</h2>
+                        {% if product.category is defined %}
+                            <h6>Метод доставки: {{ deliveryMethod.name ?? 'Не привязан к этому профилю' }}</h6>
+                        {% else %}
+                            <h6>Не привязана категория</h6>
+                        {% endif %}
                     </div>
                     <div class="card-body">
                         <table class="table table-hover table-bordered" id="mytable">
@@ -33,26 +47,81 @@
                             </thead>
                             <tbody>
                             <td>Allegro</td>
-                            <td>{% if(product.allegroOffer != null) %}
-                                    <select data-id="{{ product.id }}" class="form-control">
-                                        <option value="0" {{  product.allegroOffer.status == 0 ? 'selected': '' }}>Не активен</option>
-                                        <option value="1" {{  product.allegroOffer.status == 1 ? 'selected': '' }}>Активен</option>
+                            <td>{% if(allegroOffer != null) %}
+                                    <select data-id="{{ product.id }}" class="form-control" id="status-select">
+                                        <option value="0" {{ allegroOffer.status == 0 ? 'selected': '' }}>Не активен
+                                        </option>
+                                        <option value="1" {{ allegroOffer.status == 1 ? 'selected': '' }}>Активен
+                                        </option>
                                     </select>
                                 {% else %}
                                     Не выложен
                                 {% endif %}
                             </td>
-                            {% if(product.allegroOffer == null) %}
-                                <td>Не выложен <a href="{{ path('createAllegroOffer', {'productId': product.id}) }}">(Выложить)</a></td>
+                            {% if(allegroOffer == null) %}
+                                <td>Не выложен <a href="{{ path('createAllegroOffer', {'productId': product.id}) }}">(Выложить)</a>
+                                </td>
                             {% else %}
-                                <td>{{ product.allegroOffer.allegroId }}</td>
+                                <td>{{ allegroOffer.allegroId }}</td>
                             {% endif %}
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <div class="row m-2 justify-content-end">
-                    <a href="{{ path('deleteProduct', {'productId': product.id}) }}"><button type="button" onclick="return confirm ('Точно хотите удалить этот товар?');" class="btn btn-outline-danger">Удалить этот товар со склада</button></a>
+                    <a href="{{ path('deleteProduct', {'productId': product.id}) }}">
+                        <button type="button" onclick="return confirm ('Точно хотите удалить этот товар?');"
+                                class="btn btn-outline-danger">Удалить этот товар со склада
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-lg-12">
+                <div class="card shadow">
+                    <div class="card-body">
+                        {% for image in product.images %}
+                            <img class="shadow" style="height: 150px; width: 150px; border-radius: 10px"
+                                 src="{{ image.url }}" alt="">
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-lg-12">
+                <div class="card shadow">
+                    <div class="card-header">
+                        Товарная группа: {% if product.des %}{{ product.des.id }}{% else %}<select name="" class="form-control"
+                                                                                                   id="group-select">
+                            <option value="0">Выберите группу</option>{% for des in deses %}
+                            <option value="{{ des.id }}">{{ des.ruName }}</option>
+                        {% endfor %}</select>{% endif %}
+                    </div>
+                    <div class="card-body">
+                        <table class="table border">
+                            <thead>
+                            <th>Язык</th>
+                            <th>Товарная группа</th>
+                            <th>Авто</th>
+                            </thead>
+                            <tbody>
+                            {% if product.des is defined %}
+                                <tr>
+                                    <td>Английский</td>
+                                    <td>{{ product.des ? product.des.enName: '' }}</td>
+                                    <td>{{ product.auto }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Польский</td>
+                                    <td>{{ product.des ? product.des.plname: '' }}</td>
+                                    <td>{{ product.auto }}</td>
+                                </tr>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

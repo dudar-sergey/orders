@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\AllegroOffer;
 use App\Entity\Product;
+use App\Entity\Profile;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -24,17 +25,26 @@ class AllegroOfferRepository extends ServiceEntityRepository
         $this->em = $em;
     }
 
-    public function createOffer($id, Product $product): AllegroOffer
+    public function createOffer($id, Product $product, $profile): AllegroOffer
     {
         $offer = new AllegroOffer();
         $offer
             ->setProduct($product)
             ->setAllegroId($id)
             ->setStatus(false)
+            ->setProfile($profile)
         ;
         $this->em->persist($offer);
         $this->em->flush();
         return $offer;
+    }
+
+    public function getOffers(Profile $profile)
+    {
+        if($profile) {
+            return $this->findBy(['profile' => $profile->getId()]);
+        }
+        return false;
     }
 
     // /**

@@ -1,0 +1,9 @@
+{% for order in orders %}
+    <tr class="small">
+        <td><input value="{{ order.id }}" type="checkbox" class="my-checkbox"></td>
+        <td>{{ order.status }}</td>
+        <td>{{ order.clientName }}</td>
+        <td>{{ order.name }}</td>
+        <td><b>{{ order.date|date('d/m/y') }}</b></td>
+    </tr>
+{% endfor %}

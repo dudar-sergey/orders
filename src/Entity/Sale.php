@@ -25,24 +25,9 @@ class Sale
     private $createAt;
 
     /**
-     * @ORM\Column(type="string", length=1000, nullable=true)
-     */
-    private $articul;
-
-    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $platform;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $status;
-
-    /**
-     * @ORM\Column(type="string", length=1000, nullable=true)
-     */
-    private $orderNumber;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
@@ -55,16 +40,6 @@ class Sale
     private $price;
 
     /**
-     * @ORM\Column(type="float", nullable=true)
-     */
-    private $purchase;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $currency;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="sales")
      */
     private $product;
@@ -72,7 +47,7 @@ class Sale
     /**
      * @ORM\ManyToOne(targetEntity=Order::class, inversedBy="sales")
      */
-    private $appOrder;
+    private $order;
 
 
     public function getId(): ?int
@@ -92,18 +67,6 @@ class Sale
         return $this;
     }
 
-    public function getArticul(): ?string
-    {
-        return $this->articul;
-    }
-
-    public function setArticul(?string $articul): self
-    {
-        $this->articul = $articul;
-
-        return $this;
-    }
-
     public function getPlatform(): ?string
     {
         return $this->platform;
@@ -112,30 +75,6 @@ class Sale
     public function setPlatform(?string $platform): self
     {
         $this->platform = $platform;
-
-        return $this;
-    }
-
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(?string $status): self
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
-    public function getOrderNumber(): ?string
-    {
-        return $this->orderNumber;
-    }
-
-    public function setOrderNumber(?string $orderNumber): self
-    {
-        $this->orderNumber = $orderNumber;
 
         return $this;
     }
@@ -164,30 +103,6 @@ class Sale
         return $this;
     }
 
-    public function getPurchase(): ?float
-    {
-        return $this->purchase;
-    }
-
-    public function setPurchase(?float $purchase): self
-    {
-        $this->purchase = $purchase;
-
-        return $this;
-    }
-
-    public function getCurrency(): ?string
-    {
-        return $this->currency;
-    }
-
-    public function setCurrency(?string $currency): self
-    {
-        $this->currency = $currency;
-
-        return $this;
-    }
-
     public function getProduct(): ?Product
     {
         return $this->product;
@@ -200,14 +115,14 @@ class Sale
         return $this;
     }
 
-    public function getAppOrder(): ?Order
+    public function getOrder(): ?Order
     {
-        return $this->appOrder;
+        return $this->order;
     }
 
-    public function setAppOrder(?Order $appOrder): self
+    public function setOrder(?Order $order): self
     {
-        $this->appOrder = $appOrder;
+        $this->order = $order;
 
         return $this;
     }

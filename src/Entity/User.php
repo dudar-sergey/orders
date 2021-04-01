@@ -47,13 +47,19 @@ class User implements UserInterface
     private $allegroApplicationToken;
 
     /**
-     * @ORM\OneToMany(targetEntity=Order::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=AllegroOffer::class, mappedBy="user")
      */
-    private $orders;
+    private $allegroOffers;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Profile::class, mappedBy="user")
+     */
+    private $profiles;
 
     public function __construct()
     {
-        $this->orders = new ArrayCollection();
+        $this->allegroOffers = new ArrayCollection();
+        $this->profiles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -154,32 +160,37 @@ class User implements UserInterface
     }
 
     /**
-     * @return Collection|Order[]
+     * @return Collection|Profile[]
      */
-    public function getOrders(): Collection
+    public function getProfiles(): Collection
     {
-        return $this->orders;
+        return $this->profiles;
     }
 
-    public function addOrder(Order $order): self
+    public function addProfile(Profile $profile): self
     {
-        if (!$this->orders->contains($order)) {
-            $this->orders[] = $order;
-            $order->setUser($this);
+        if (!$this->profiles->contains($profile)) {
+            $this->profiles[] = $profile;
+            $profile->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeOrder(Order $order): self
+    public function removeProfile(Profile $profile): self
     {
-        if ($this->orders->removeElement($order)) {
+        if ($this->profiles->removeElement($profile)) {
             // set the owning side to null (unless already changed)
-            if ($order->getUser() === $this) {
-                $order->setUser(null);
+            if ($profile->getUser() === $this) {
+                $profile->setUser(null);
             }
         }
 
         return $this;
+    }
+
+    public function hasProfile(Profile $profile): bool
+    {
+        return $this->profiles->contains($profile);
     }
 }

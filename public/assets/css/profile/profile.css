@@ -1,0 +1,10 @@
+.profile-item {
+    cursor: pointer;
+}
+
+.selected {
+    -webkit-box-shadow: 4px 4px 5px -5px rgba(81, 98, 111, 0.5) inset;
+    -moz-box-shadow: 4px 4px 5px -5px rgba(81, 98, 111, 0.5) inset;
+    box-shadow: 4px 4px 5px -5px rgba(81, 98, 111, 0.5) inset;
+    background-color: rgba(203, 203, 210, 0.15);
+}

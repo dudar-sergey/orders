@@ -4,15 +4,19 @@
 namespace App\Add;
 
 
+use App\Controller\api\ProductApi\ProductApi;
 use App\ebay\AllegroUserManager;
 use App\ebay\Ebay;
+use App\Entity\AllegroOffer;
 use App\Entity\Images;
 use App\Entity\Order;
 use App\Entity\Product;
+use App\Entity\Profile;
 use App\Entity\Sale;
 use App\Entity\Supply;
 use App\Entity\SupplyProduct;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Serializer\Encoder\CsvEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -23,12 +27,14 @@ class Add
     private $ebay;
     private $serializer;
     private $am;
+    private $session;
 
-    public function __construct(EntityManagerInterface $em, Ebay $ebay, AllegroUserManager $am)
+    public function __construct(EntityManagerInterface $em, Ebay $ebay, AllegroUserManager $am, SessionInterface $session)
     {
         $this->em = $em;
         $this->ebay = $ebay;
         $this->am = $am;
+        $this->session = $session;
         $this->serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder()]);
     }
 
@@ -72,40 +78,6 @@ class Add
             $this->em->flush();
         }
         return 1;
-    }
-
-    public function syncFromEbay()
-    {
-        $response = $this->ebay->getProductsFromEbay();
-
-        if ($response) {
-            if (isset($response['ActiveList'])) {
-                $productsFromEbay = $response['ActiveList']['ItemArray']['Item'];
-                foreach ($productsFromEbay as $product) {
-                    /** @var Product $inProduct */
-                    $inProduct = $this->em->getRepository(Product::class)->findOneBy(['eId' => $product['ItemID']]);
-                    if (!$inProduct) {
-                        $inProduct = new Product();
-                    }
-                    if (isset($product['PictureDetails'])) {
-                        $inProduct->setImg($product['PictureDetails']['GalleryURL']);
-                    }
-                    $inProduct->setName($product['Title']);
-                    $inProduct->setUrl($product['ListingDetails']['ViewItemURL']);
-                    $inProduct->setSync(true);
-                    $inProduct->setQuantity($product['QuantityAvailable']);
-                    $inProduct->setEId($product['ItemID']);
-                    if (isset($product['BuyItNowPrice'])) {
-                        $inProduct->setPrice($product['BuyItNowPrice']);
-                    } else {
-                        $inProduct->setPrice($product['StartPrice']);
-                    }
-                    $this->em->persist($inProduct);
-                    $this->em->flush();
-                }
-            }
-        }
-
     }
 
     public function deleteProducts($products)
@@ -222,7 +194,6 @@ class Add
             $newProduct->setDescription($options['description']);
             $newProduct->setPrice($options['price']);
             $newProduct->setQuantity($this->getMinQuantityOfProducts($products));
-            $newProduct->setDeliveryMethod($options['deliveryMethod']);
             $newProduct->setAllegroTitle($name);
             $newProduct->setName($name);
             $newProduct->setKit(true);
@@ -241,18 +212,5 @@ class Add
         }
 
         return $min;
-    }
-
-    public function changeQuantityProduct(Product $product, $quantity)
-    {
-        $response = [];
-        if($quantity) {
-            $product->setQuantity($quantity);
-            $this->em->flush();
-        }
-        if($product->getAllegroOffer()) {
-            $response = $this->am->changeQuantity($product->getAllegroOffer()->getAllegroId(), $quantity);
-        }
-        return $response;
     }
 }

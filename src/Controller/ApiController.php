@@ -9,6 +9,7 @@ use App\ebay\AllegroUserManager;
 use App\Entity\AllegroDeliveryMethod;
 use App\Entity\AllegroOffer;
 use App\Entity\Product;
+use App\Entity\Profile;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -45,19 +46,20 @@ class ApiController extends AbstractController
      * @Route ("/update_product/{productId}")
      * @param Request $request
      * @param $productId
+     * @return JsonResponse
      */
-    public function updateProduct(Request $request, $productId)
+    public function updateProduct(Request $request, $productId): JsonResponse
     {
         $product = $this->em->getRepository(Product::class)->find($productId);
         $name = $request->get('new_name') ?? null;
+        $allegroName = $request->get('allegro_name') ?? null;
         $quantity = $request->get('quantity') ?? null;
-        if($product && $name && $quantity) {
+        if($product && $name && $quantity && $allegroName) {
             $product
-                ->setName($name);
+                ->setName($name)
+                ->setAllegroTitle($allegroName);
             $this->em->flush();
-            if($quantity != $product->getQuantity()) {
-                $this->add->changeQuantityProduct($product, $quantity);
-            }
+
             return new JsonResponse([
                 'message' => 'Товар '.$product->getId().' изменен'
             ]);
@@ -148,6 +150,13 @@ class ApiController extends AbstractController
     public function getProductsHtml(Request $request): Response
     {
         $word = $request->get('word') ?? null;
+        $sort = null;
+        if($request->get('sort')) {
+            $sort = [
+              'column' => $request->get('sort'),
+              'method' => $request->get('method')
+            ];
+        }
         $offset = $limit = $this->session->get('limit') ?? 10;
         $page = $request->get('p') ?? 1;
         if($page == 1 || $page == 0 || $page == null)
@@ -156,7 +165,7 @@ class ApiController extends AbstractController
             $page = 1;
         }
 
-        $products = $this->em->getRepository(Product::class)->findByArticleAndName($word, $word, $limit, $offset*($page-1));
+        $products = $this->em->getRepository(Product::class)->findByArticleAndName($word, $word, $limit, $offset*($page-1), $sort);
         $pages = ceil(count($this->em->getRepository(Product::class)->findByArticleAndName($word, $word))/$limit);
         return $this->render('api/tableProducts.html.twig', [
             'products'=>$products,
@@ -220,11 +229,7 @@ class ApiController extends AbstractController
      */
     public function getUnloadProducts(): Response
     {
-        $criteria = new Criteria();
-        $criteria->where(Criteria::expr()->neq('name', null));
-        $criteria->andWhere(Criteria::expr()->eq('sync', null));
-        $criteria->orderBy(['id' => Criteria::DESC]);
-        $products = $this->em->getRepository(Product::class)->matching($criteria);
+        $products = $this->em->getRepository(Product::class)->getUnloadProducts($this->session->get('currentProfile'));
 
         return $this->render('api/unloadProducts.html.twig', ['products' => $products]);
     }
@@ -235,13 +240,13 @@ class ApiController extends AbstractController
     public function getNonActivateProducts(): Response
     {
         $exportProducts = [];
-        $criteria = new Criteria();
-        $criteria->where(Criteria::expr()->neq('name', null));
-        $criteria->andWhere(Criteria::expr()->eq('sync', true));
-        $criteria->orderBy(['id' => Criteria::DESC]);
-        $products = $this->em->getRepository(Product::class)->matching($criteria);
+//        $criteria = new Criteria();
+//        $criteria->where(Criteria::expr()->neq('name', null));
+//        $criteria->andWhere(Criteria::expr()->eq('sync', true));
+//        $criteria->orderBy(['id' => Criteria::DESC]);
+        $products = $this->em->getRepository(Product::class)->getNonActiveProducts();
         foreach ($products as $product) {
-            $allegroOffer = $product->getAllegroOffer();
+            $allegroOffer = $product->getAllegroOffer($this->session->get('currentProfile'));
             if($allegroOffer) {
                 if($allegroOffer->getStatus() == false) {
                     $exportProducts[] = $product;
@@ -262,6 +267,7 @@ class ApiController extends AbstractController
         $allegroOfferRep = $this->em->getRepository(AllegroOffer::class);
         /** @var Product[] $products */
         $products = [];
+        $profile = $this->em->getRepository(Profile::class)->find($this->session->get('currentProfile')->getId());
         $content = json_decode($request->getContent(), true);
         if($content) {
             foreach ($content['products'] as $productId) {
@@ -269,10 +275,9 @@ class ApiController extends AbstractController
             }
         }
         foreach ($products as $product) {
-            $response = $this->am->addOfferToAllegro($product, $product->getKit());
+            $response = $this->am->addOfferToAllegro($product, $profile, $product->getKit());
             if(isset($response['id'])) {
-                $allegroOfferRep->createOffer($response['id'], $product);
-                $product->setSync(true);
+                $allegroOfferRep->createOffer($response['id'], $product, $profile);
                 $this->em->flush();
             }
         }
@@ -293,11 +298,46 @@ class ApiController extends AbstractController
         $response = [];
         $product = $this->em->getRepository(Product::class)->find($productId);
         $quantity = $request->get('quantity') ?? null;
-        if($product) {
-            if($quantity) {
-                $response = $this->add->changeQuantityProduct($product, $quantity);
-            }
-        }
+        //TODO: сделать изменение количество везде
         return new JsonResponse($response);
+    }
+
+    /**
+     * @Route ("/change_offer_status", methods={"POST"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function changeOfferStatus(Request $request): JsonResponse
+    {
+        $command = $request->get('command') ?? null;
+        $ids = json_decode($request->getContent(), true);
+        $offers = [];
+        foreach ($ids as $id) {
+            /** @var Product $product */
+            $product = $this->em->getRepository(Product::class)->find($id);
+            $offers[] = ['id' => $product->getAllegroOffer($this->session->get('currentProfile'))->getAllegroId()];
+        }
+        if($command) {
+                return $this->am->changeStatusOffer($offers, $command, $this->session->get('currentProfile'));
+        } else {
+            return new JsonResponse(['message' => 'Error'], 400);
+        }
+    }
+
+    /**
+     * @Route ("/get_delivery_methods")
+     */
+    public function getDeliveryMethods()
+    {
+        return $this->am->getDeliverySettings();
+    }
+
+    /**
+     * @Route ("/get_parameters")
+     */
+    public function getParameters(): JsonResponse
+    {
+        $profile = $this->em->getRepository(Profile::class)->find(1);
+        return $this->am->getParameters('253564', $profile);
     }
 }

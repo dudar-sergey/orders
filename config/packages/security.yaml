@@ -46,4 +46,5 @@ security:
          - { path: ^/book, roles: ROLE_ADMIN }
          - { path: ^/user, roles: ROLE_ADMIN }
          - { path: ^/api, roles: ROLE_ADMIN }
+         - { path: ^/product_api, roles: ROLE_ADMIN }
 

@@ -1,13 +1,17 @@
 const searchInput = document.getElementById('search');
+let sort = {
+    column: '',
+    method: '',
+}
 window.addEventListener('load', () => {
-        showProductsTable()
-        const countSelects = [...document.getElementsByClassName('count-products-select')]
-        countSelects.forEach(select => select.addEventListener('input', handleCountSelect))
-        searchInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                showProductsTableSearch(searchInput.value)
-            }
-        })
+    showProductsTable()
+    const countSelects = [...document.getElementsByClassName('count-products-select')]
+    countSelects.forEach(select => select.addEventListener('input', handleCountSelect))
+    searchInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            showProductsTable(searchInput.value)
+        }
+    })
 })
 
 
@@ -24,25 +28,6 @@ function handleCountSelect({target}) {
         .then(() => redirect('/products'))
 }
 
-
-function showProductsTableSearch(word, page = null) {
-    requestSearch(word, page)
-        .then(async function (response) {
-            paintTable(await response.text())
-        })
-}
-
-
-function requestSearch(word, page = null) {
-    let url = '/api/get_products_html?word=' + word;
-    if (page) {
-        url += '&p=' + page;
-    }
-    return fetch(url, {
-        method: 'GET'
-    })
-}
-
 function paintTable(html) {
     let table = document.getElementById('mytable')
 
@@ -53,20 +38,34 @@ function paintTable(html) {
         link.addEventListener('click', function () {
             const page = link.value
             showProductsTable(searchInput.value, page)
-            table.scrollIntoView()
+        })
+    })
+    const ths = [...document.getElementsByTagName('th')]
+    ths.forEach(th => {
+        th.addEventListener('click', () => {
+            sort.column = th.id
+            if(sort.method === 'ASC' || sort.method === '') {
+                sort.method = 'DESC'
+            } else {
+                sort.method = 'ASC'
+            }
+            showProductsTable(searchInput.value)
         })
     })
 }
 
 function showProductsTable(word = null, page = 1) {
-    let url = '/api/get_products_html?p='+page
-    if(word) {
-        url += '&word='+word
+    let url = '/api/get_products_html?p=' + page
+    if (sort.column && sort.method) {
+        url += '&sort=' + sort.column + '&method=' + sort.method
     }
-        fetch(url, {
-            method: 'GET'
+    if (word) {
+        url += '&word=' + word
+    }
+    fetch(url, {
+        method: 'GET'
+    })
+        .then(async function (response) {
+            paintTable(await response.text())
         })
-            .then(async function (response) {
-                paintTable(await response.text())
-            })
 }

@@ -3,6 +3,8 @@ window.addEventListener('load', () => {
     const nActive = document.getElementById('n-active')
     showUnloadProducts().then(() => {
     })
+    const uploadButton = document.getElementById('upload-button')
+    const activateButton = document.getElementById('activate-button')
 
     unload.addEventListener('click', () => {
         nActive.classList.remove('active')
@@ -13,15 +15,42 @@ window.addEventListener('load', () => {
     nActive.addEventListener('click', () => {
         unload.classList.remove('active')
         nActive.classList.add('active')
-        showNActiveProducts()
+        showNActiveProducts().then(r => {})
     })
 
-    const uploadButton = document.getElementById('upload-button')
     uploadButton.addEventListener('click', () => {
         sendProductsToUpload()
     })
+    activateButton.addEventListener('click', () => {
+        sendProductsToActivate()
+    })
 
 })
+
+function sendProductsToActivate() {
+    let currentProducts = [...document.getElementsByClassName('upload-checkbox')]
+    let requestBody = {
+        products: []
+    }
+    let trs = []
+
+    currentProducts.forEach(el => {
+        if(el.checked) {
+            requestBody.products.push(el.value)
+            trs.push(el.parentElement.parentElement)
+        }
+    })
+
+    fetch('/api/change_offer_status?command=ACTIVATE', {
+        method: 'POST',
+        body: JSON.stringify(requestBody.products)
+    })
+        .then(r => {
+            trs.forEach(tr => {
+                tr.remove()
+            })
+        })
+}
 
 function sendProductsToUpload() {
     let currentProducts = [...document.getElementsByClassName('upload-checkbox')]

@@ -1,69 +1,45 @@
 {% extends 'base.html.twig' %}
 {% block body %}
     <a href="{{ path('supplies') }}" class="m-3">Назад</a>
-    <section id="contact">
-        <div class="section-content">
-            <h1 class="section-header">Добавить поставку</h1>
-        </div>
-        <div class="contact-section">
-            <div class="container">
-                {{ form_start(form) }}
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        {{ form_row(form.header.sender) }}
+    <div class="container">
+        <div class="row mt-2">
+            <div class="col-lg-12">
+                <div class="card shadow">
+                    <div class="card-header text-center">
+                        <h3>Добавление поставки</h3>
                     </div>
-                    <div class="form-group col-md-6">
-                        {{ form_row(form.header.recipient) }}
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        {{ form_row(form.header.contract) }}
-                    </div>
-                    <div class="form-group col-md-6">
-                        {{ form_row(form.header.date) }}
-                    </div>
-                </div>
-                <div class="form-row text-center">
-                    <div class="form-group col-md-12">
-                        {{ form_label(form.file) }}
-                        {{ form_widget(form.file, {'attr': {'class': 'ml-3'}}) }}
+                    <div class="card-body">
+                        <form action="" id="supply-form" name="supplyForm">
+                            <div class="form-group row">
+                                <div class="col-lg-6">
+                                    <label for="sender">Отправитель</label><input placeholder="Введите отправителя" class="form-control" name="sender" id="sender" type="text">
+                                </div>
+                                <div class="col-lg-6">
+                                    <label for="recipient">Получатель</label><input placeholder="Введите получателя" name="recipient" class="form-control" type="text" id="recipient">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-lg-6">
+                                    <label for="contract">Номер договора</label><input placeholder="Введите номер договора" name="contract" class="form-control" id="contract" type="text">
+                                </div>
+                                <div class="col-lg-6">
+                                    <label for="date">Дата</label><input id="date" name="date" class="form-control" type="date">
+                                </div>
+                            </div>
+                            <div class="form-group row justify-content-center">
+                                <div class="col-lg-4">
+                                    <input class="form-control-file" type="file" id="file" name="file">
+                                </div>
+                            </div>
+                            <button class="btn" type="button" id="send-btn">Добавить</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-    <div class="container">
-        <div class="row mt-3 justify-content-center">
-            {% if(form['product0'] is defined) %}
-                <table class="table">
-                    <thead>
-                    <th>#</th>
-                    <th>Имя</th>
-                    <th>Артикул</th>
-                    <th>Количество</th>
-                    <th>UPC</th>
-                    <th>Сумма</th>
-                    <th>Изображения</th>
-                    </thead>
-                    <tbody>
-                        {% for i in 0..quantity-1 %}
-                            <tr>
-                                <td>{{ i+1 }}</td>
-                                <td>{{ form_row(form['product' ~ i].name) }}</td>
-                                <td>{{ form_row(form['product' ~ i].article) }}</td>
-                                <td>{{ form_row(form['product' ~ i].quantity) }}</td>
-                                <td>{{ form_row(form['product' ~ i].upc) }}</td>
-                                <td>{{ form_row(form['product' ~ i].price) }}</td>
-                                <td>{{ form_row(form['product' ~ i].images) }} <i class="fas fa-info-circle" title="Вставлять ссылки через точку с запятой"></i></td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
-            <button type="submit" name="submit" value="2" class="btn btn-primary">Отправить</button>
-            <button type="submit" name="submit" value="1" class="btn btn-primary">Добавить строку</button>
-            {{ form_end(form) }}
-        </div>
     </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/myJs/products/addProducts.js') }}"></script>
 {% endblock %}

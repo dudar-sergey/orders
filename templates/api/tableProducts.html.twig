@@ -5,17 +5,17 @@
         <th scope="col">Ариткул</th>
         <th scope="col">UPC</th>
         <th scope="col">Название</th>
-        <th scope="col">Стоимость</th>
-        <th scope="col">Количество</th>
+        <th scope="col" id="price">Стоимость</th>
+        <th scope="col" id="quantity">Количество</th>
         <th>Карточка</th>
         </thead>
         <tbody>
         {% for product in products %}
             <tr>
-                <td><img src="{{ product.images.first.url ?? 'https://kknd26.ru/images/no_photo.png' }}" width="150" height="100" alt=""></td>
+                <td><img src="{{ product.images.first.url ?? 'https://kknd26.ru/images/no_photo.png' }}" width="60" height="40" alt=""></td>
                 <td>{{ product.articul }}</td>
                 <td>{{ product.upc }}</td>
-                <td><a href="{{ path('cardItem', {'itemId': product.id}) }}">{{ product.name }}</a></td>
+                <td><a href="{{ path('cardItem', {'itemId': product.id}) }}">{{ product.des.plName ?? product.name }} {{ product.auto ?? '' }}</a></td>
                 <td>
                     {{ product.price}}
                 </td>

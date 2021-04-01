@@ -1,0 +1,7 @@
+{% for product in products %}
+    <tr>
+        <td><input type="checkbox" class="my-checkbox" value="{{ product.id }}"></td>
+        <td>{{ product.articul }}</td>
+        <td>{{ product.name }}</td>
+    </tr>
+{% endfor %}

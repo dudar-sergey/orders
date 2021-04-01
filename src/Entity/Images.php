@@ -27,6 +27,11 @@ class Images
      */
     private $url;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $main;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -52,6 +57,18 @@ class Images
     public function setUrl(?string $url): self
     {
         $this->url = $url;
+
+        return $this;
+    }
+
+    public function getMain(): ?bool
+    {
+        return $this->main;
+    }
+
+    public function setMain(bool $main): self
+    {
+        $this->main = $main;
 
         return $this;
     }

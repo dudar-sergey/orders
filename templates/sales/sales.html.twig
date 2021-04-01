@@ -1,42 +1,51 @@
 {% extends 'base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
 {% block body %}
-<div class="container-fluid">
-    <div class="row">
+    <div class="container">
+        <div class="row">
             <a href="{{ path('addSale') }}" class="m-3">
                 <button class="btn btn-primary">Добавить продажу</button>
             </a>
-        <div class="col-md-12">
-            <div class="card striped-with-hover">
-                <div class="card-body table-full-width table-responsive">
-                    <div class="card-body table-full-width table-responsive">
-                        <table class="table table-hover table-striped text-center">
-                            <thead class="text-center">
-                            <th class="text-dark">Дата продажи</th>
-                            <th class="text-dark">Артикул</th>
-                            <th class="text-dark">Название</th>
-                            <th class="text-dark">Платформа</th>
-                            <th class="text-dark">Статус</th>
-                            <th class="text-dark">№ заказа</th>
-                            <th class="text-dark">Кол-во</th>
-                            <th class="text-dark">Стоимость</th>
-                            <th class="text-dark">Закупка</th>
-                            <th class="text-dark">Валюта</th>
-                            <th class="text-dark">Карточка</th>
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h3 class="m-0">Продано</h3>
+                    </div>
+                    <div class="card-body">
+                        <p><b>За последний месяц:</b> {{ lastDaysSales|length }}</p>
+                        <p><b>На сумму: </b>{{ sum.sum }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead>
+                            <th><b>Дата продажи</b></th>
+                            <th><b>Профиль</b></th>
+                            <th><b>Покупатель</b></th>
+                            <th><b>Платформа</b></th>
+                            <th><b>Стоимость</b></th>
+                            <th><b>Карточка</b></th>
                             </thead>
                             <tbody>
                             {% for sale in sales %}
                                 <tr>
-                                    <td>{{ sale.createAt | date }}</td>
-                                    <td>{{ sale.product.articul }}</td>
-                                    <td>{{ sale.product.name }}</td>
-                                    <td>{{ sale.platform }}</td>
-                                    <td>{{ sale.status }}</td>
-                                    <td>{{ sale.orderNumber}}</td>
-                                    <td>{{ sale.quantity }}</td>
-                                    <td>{{ sale.price }}</td>
-                                    <td>{{ sale.purchase }}</td>
-                                    <td>{{ sale.currency }}</td>
-                                    <td><a href="{{ path('salecard', {'saleId': sale.id}) }}">Карточка</a></td>
+                                    {% if sale.order %}
+                                        <td>{{ sale.createAt|date('d-m-Y') }}</td>
+                                        <td>{{ sale.order.profile.userName }}</td>
+                                        <td>{{ sale.order.buyer }}</td>
+                                        <td>{{ sale.order.placement }}</td>
+                                        <td>{{ sale.order.price }} </td>
+                                        <td class="text-center text-success"><i data-id="{{ sale.id }}" class="fas fa-clipboard-list sale-card" style="cursor: pointer"></i></td>
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -45,6 +54,9 @@
                 </div>
             </div>
         </div>
-
-</div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/myJs/sales/sales.js') }}"></script>
 {% endblock %}
