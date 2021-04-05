@@ -257,7 +257,7 @@ class AllegroUserManager
                 'unit' => 'UNIT'
             ],
         ];
-        $requestBody = json_encode($requestBody, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+        $requestBody = json_encode($requestBody, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP);
         try {
             $response = $this->client->request('POST', 'https://api.allegro.pl/sale/offers', [
                 'headers' => [
@@ -267,7 +267,6 @@ class AllegroUserManager
                 ],
                 'body' => $requestBody,
             ]);
-            var_dump(json_decode($response->getContent(), true));
             return json_decode($response->getContent(), true);
         } catch (\Exception $e) {
             var_dump('Не удалось добавить товар номер ' . $product->getId());

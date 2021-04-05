@@ -15,7 +15,7 @@
     {% if app.user %}
     {% endif %}
     <div class="wrapper">
-        <div class="sidebar" data-image="../assets/img/sidebar-5.jpg">
+        <div class="sidebar shadow-lg" data-image="../assets/img/sidebar-5.jpg">
             <div class="sidebar-wrapper">
                 <div class="logo">
                     <a href="{{ path('home') }}" class="simple-text">
@@ -75,6 +75,12 @@
                         <a class="nav-link" href="{{ path('unload') }}">
                             <i class="fas fa-cloud-upload-alt"></i>
                             <p>Выгрузка</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="{{ path('update') }}">
+                            <i class="fas fa-retweet"></i>
+                            <p>Обновления</p>
                         </a>
                     </li>
                 </ul>
