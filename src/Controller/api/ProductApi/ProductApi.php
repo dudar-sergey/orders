@@ -86,6 +86,22 @@ class ProductApi extends AbstractController
     }
 
     /**
+     * @Route ("/update_quantity", methods={"POST"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updateQuantity(Request $request): JsonResponse
+    {
+        $response = [];
+        /** @var UploadedFile $file */
+        $file = $request->get('file');
+        if($file) {
+            $response = $this->productManager->updateQuantity($file);
+        }
+        return new JsonResponse($response);
+    }
+
+    /**
      * @Route("/change_group/{groupId}")
      * @param int $groupId
      * @param Request $request

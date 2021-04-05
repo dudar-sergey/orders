@@ -42,13 +42,10 @@ class PriceCommand extends Command
 
         foreach ($products as $product)
         {
-            $price = new Price();
-            $price
-                ->setProduct($product)
-                ->setPl($product->getPrice());
-            $this->em->persist($price);
+            if(!$product->getImages()) {
+                echo $product->getArticul().PHP_EOL;
+            }
         }
-        $this->em->flush();
 
         $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
 

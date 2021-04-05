@@ -65,4 +65,21 @@ class ProductManager extends Manager
         ];
         return $this->serializer->decode($csvFile, 'csv', $context);
     }
+
+    public function updateQuantity(UploadedFile $file)
+    {
+        $response = [];
+        $products = $this->toArray(file_get_contents($file));
+        foreach ($products as $product) {
+            $currentProduct = $this->productRep->findOneBy(['articul' => $product['article']]);
+            if($currentProduct) {
+                if(isset($product['quantity'])) {
+                    $responseProduct = $currentProduct->setQuantity($product['quantity']);
+                    $response[] = $responseProduct->getArticul();
+                }
+            }
+        }
+        $this->em->flush();
+        return $response;
+    }
 }
