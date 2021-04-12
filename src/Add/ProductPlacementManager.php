@@ -24,9 +24,15 @@ class ProductPlacementManager extends Manager
             if ($sourceProfile) {
                 if ($allegroOffer->getProfile()->getId() != $sourceProfile->getId()) {
                     $this->am->changeQuantity($allegroOffer, $quantity);
+                    if($quantity <= 0) {
+                        $this->am->changeStatusOffer([$allegroOffer->getAllegroId()], 'END', $allegroOffer->getProfile());
+                    }
                 }
             } else {
                 $this->am->changeQuantity($allegroOffer, $quantity);
+                if($quantity <= 0) {
+                    $this->am->changeStatusOffer([$allegroOffer->getAllegroId()], 'END', $allegroOffer->getProfile());
+                }
             }
             $product->setQuantity($quantity);
             $this->em->flush();

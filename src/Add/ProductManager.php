@@ -34,8 +34,8 @@ class ProductManager extends Manager
         $supplyProducts = [];
         foreach ($products as $product) {
             $currentProduct = $this->productRep->findOneBy(['articul' => $product['article']]);
-            if($currentProduct) {
-                $this->productRep->updateProduct($currentProduct, $product['quantity']);
+            if ($currentProduct) {
+                $this->productRep->updateProduct($currentProduct, $currentProduct->getQuantity() + $product['quantity']);
             } else {
                 $category = $this->em->getRepository(DeliveryCategory::class)->find($product['category']);
                 $group = $this->em->getRepository(Description::class)->find($product['group']);
@@ -72,8 +72,8 @@ class ProductManager extends Manager
         $products = $this->toArray(file_get_contents($file));
         foreach ($products as $product) {
             $currentProduct = $this->productRep->findOneBy(['articul' => $product['article']]);
-            if($currentProduct) {
-                if(isset($product['quantity'])) {
+            if ($currentProduct) {
+                if (isset($product['quantity'])) {
                     $responseProduct = $currentProduct->setQuantity($product['quantity']);
                     $response[] = $responseProduct->getArticul();
                 }

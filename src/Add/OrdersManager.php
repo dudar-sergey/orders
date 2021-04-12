@@ -35,7 +35,6 @@ class OrdersManager extends Manager
             if($currentOrder) {
                 $this->orderRep->updateOrder($currentOrder, $order['status']);
             } else {
-
                 $newOrders[] = $this->createAllegroOrder($order, $profile);
             }
         }
