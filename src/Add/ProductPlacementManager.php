@@ -20,18 +20,23 @@ class ProductPlacementManager extends Manager
     public function changeQuantityProduct(Product $product, $quantity, $sourceProfile = null): array
     {
         $response = [];
-        foreach ($product->getAllegroOffers() as $allegroOffer) {
+        /** @var AllegroOffer[] $allegroOffers */
+        $allegroOffers = $product->getAllegroOffers();
+        foreach ($allegroOffers as $allegroOffer) {
             if ($sourceProfile) {
                 if ($allegroOffer->getProfile()->getId() != $sourceProfile->getId()) {
                     $this->am->changeQuantity($allegroOffer, $quantity);
+                    $this->log('Изменило количество на складе и на площадках товар '.$allegroOffer->getProduct()->getArticul().' Количество '.$quantity);
                     if($quantity <= 0) {
-                        $this->am->changeStatusOffer([$allegroOffer->getAllegroId()], 'END', $allegroOffer->getProfile());
+                        $response = $this->am->changeStatusOffer([$allegroOffer->getAllegroId()], 'END', $allegroOffer->getProfile());
+                        $this->log('Товар '.$product->getArticul().' закончился. Ответ: '.$response);
                     }
                 }
             } else {
                 $this->am->changeQuantity($allegroOffer, $quantity);
                 if($quantity <= 0) {
-                    $this->am->changeStatusOffer([$allegroOffer->getAllegroId()], 'END', $allegroOffer->getProfile());
+                    $response = $this->am->changeStatusOffer([$allegroOffer->getAllegroId()], 'END', $allegroOffer->getProfile());
+                    $this->log('Товар '.$product->getArticul().' закончился. Ответ: '.$response);
                 }
             }
             $product->setQuantity($quantity);

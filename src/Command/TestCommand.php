@@ -11,6 +11,8 @@ use App\Entity\Images;
 use App\Entity\Product;
 use App\Entity\Profile;
 use App\Entity\User;
+use DateTime;
+use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -57,11 +59,9 @@ class TestCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $articles = [];
         $arg1 = $input->getArgument('arg1');
-        $users = $this->em->getRepository(User::class)->findAll();
-        foreach ($users as $user) {
-            $user->setPassword($this->pe->encodePassword($user, '1$932##hH8EkKsj&677'));
-            $this->em->flush();
-        }
+        $time = new DateTime('now', new DateTimeZone('+3'));
+        $string = '['.$time->format('d-m-Y G:i:s').'] Запись произведена';
+        file_put_contents(__DIR__.'/logs.txt', file_get_contents(__DIR__.'/logs.txt').PHP_EOL.$string);
 
         return Command::SUCCESS;
     }
