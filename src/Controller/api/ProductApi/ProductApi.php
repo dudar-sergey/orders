@@ -94,7 +94,7 @@ class ProductApi extends AbstractController
     {
         $response = [];
         /** @var UploadedFile $file */
-        $file = $request->get('file');
+        $file = $request->files->get('file');
         if($file) {
             $response = $this->productManager->updateQuantity($file);
         }

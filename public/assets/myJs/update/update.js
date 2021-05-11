@@ -6,6 +6,7 @@ window.addEventListener('load', () => {
 function updateQuantity() {
     const updateQuantityForm = document.getElementById('update-quantity-form')
     let formData = new FormData(updateQuantityForm)
+
     sendUpdate(formData)
         .then(r => r.json())
         .then(data => {
