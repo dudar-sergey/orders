@@ -9,6 +9,10 @@ use App\Entity\AllegroOffer;
 use App\Entity\Product;
 use App\Entity\Profile;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class ProductPlacementManager extends Manager
 {
@@ -28,14 +32,22 @@ class ProductPlacementManager extends Manager
                     $this->am->changeQuantity($allegroOffer, $quantity);
                     $this->log('Изменило количество на складе и на площадках товар '.$allegroOffer->getProduct()->getArticul().' Количество '.$quantity);
                     if($quantity < 0 || $quantity == 0) {
-                        $response = $this->am->changeStatusOffer([$allegroOffer->getAllegroId()], 'END', $allegroOffer->getProfile());
+                        try {
+                            $response = $this->am->changeStatusOffer([$allegroOffer->getAllegroId()], 'END', $allegroOffer->getProfile());
+                        } catch (ClientExceptionInterface | RedirectionExceptionInterface | ServerExceptionInterface | TransportExceptionInterface $e) {
+                            $this->log('Ошибка при изменении количества');
+                        }
                         $this->log('Товар '.$product->getArticul().' закончился. Ответ: '.$response);
                     }
                 }
             } else {
                 $this->am->changeQuantity($allegroOffer, $quantity);
                 if($quantity < 0 || $quantity == 0) {
-                    $response = $this->am->changeStatusOffer([$allegroOffer->getAllegroId()], 'END', $allegroOffer->getProfile());
+                    try {
+                        $response = $this->am->changeStatusOffer([$allegroOffer->getAllegroId()], 'END', $allegroOffer->getProfile());
+                    } catch (ClientExceptionInterface | RedirectionExceptionInterface | ServerExceptionInterface | TransportExceptionInterface $e) {
+                        $this->log('Ошибка при изменении количества');
+                    }
                     $this->log('Товар '.$product->getArticul().' закончился. Ответ: '.$response);
                 }
             }
