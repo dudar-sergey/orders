@@ -80,6 +80,6 @@ class ProductManager extends Manager
             }
         }
         $this->em->flush();
-        return $response;
+        return $products;
     }
 }
