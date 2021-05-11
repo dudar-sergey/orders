@@ -41,7 +41,7 @@ class AllegroUserManager
 
     public function getTokenForUser($code, $clientId, $clientSecret)
     {
-        $url = 'https://allegro.pl/auth/oauth/token?grant_type=authorization_code&code=' . $code . '&redirect_uri=https://localhost:8000/allAuth';
+        $url = 'https://allegro.pl/auth/oauth/token?grant_type=authorization_code&code=' . $code . '&redirect_uri=https://api288gg987124.greenauto.site/allAuth';
         $response = $this->client->request('POST', $url, [
             'headers' => [
                 'Authorization' => 'Basic ' . $this->getTokenBase64($clientId, $clientSecret),
