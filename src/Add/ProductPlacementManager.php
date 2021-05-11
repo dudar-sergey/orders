@@ -27,14 +27,14 @@ class ProductPlacementManager extends Manager
                 if ($allegroOffer->getProfile()->getId() != $sourceProfile->getId()) {
                     $this->am->changeQuantity($allegroOffer, $quantity);
                     $this->log('Изменило количество на складе и на площадках товар '.$allegroOffer->getProduct()->getArticul().' Количество '.$quantity);
-                    if($quantity <= 0) {
+                    if($quantity < 0 || $quantity == 0) {
                         $response = $this->am->changeStatusOffer([$allegroOffer->getAllegroId()], 'END', $allegroOffer->getProfile());
                         $this->log('Товар '.$product->getArticul().' закончился. Ответ: '.$response);
                     }
                 }
             } else {
                 $this->am->changeQuantity($allegroOffer, $quantity);
-                if($quantity <= 0) {
+                if($quantity < 0 || $quantity == 0) {
                     $response = $this->am->changeStatusOffer([$allegroOffer->getAllegroId()], 'END', $allegroOffer->getProfile());
                     $this->log('Товар '.$product->getArticul().' закончился. Ответ: '.$response);
                 }
