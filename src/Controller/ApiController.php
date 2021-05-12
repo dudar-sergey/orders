@@ -333,6 +333,22 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Route ("/get_return_policy")
+     */
+    public function getReturnPolicy()
+    {
+        return $this->am->getReturnSettings();
+    }
+
+    /**
+     * @Route ("/get_impl_war")
+     */
+    public function getImlWar()
+    {
+        return $this->am->getImplWar();
+    }
+
+    /**
      * @Route ("/get_parameters")
      */
     public function getParameters(): JsonResponse

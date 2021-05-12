@@ -83,6 +83,18 @@ class AllegroUserManager
         return new JsonResponse($response->getContent(), 200, [], true);
     }
 
+    public function getImplWar()
+    {
+        $response = $this->client->request('GET', 'https://api.allegro.pl/after-sales-service-conditions/implied-warranties', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->session->get('currentProfile')->getAllegroAccessToken(),
+                'Accept' => 'application/vnd.allegro.public.v1+json',
+                'Content-Type' => 'application/vnd.allegro.public.v1+json'
+            ],
+        ]);
+        return new JsonResponse($response->getContent(), 200, [], true);
+    }
+
     public function getParameters($categoryId, Profile $profile)
     {
         $response = $this->client->request('GET', 'https://api.allegro.pl/sale/categories/' . $categoryId . '/parameters', [
@@ -98,14 +110,14 @@ class AllegroUserManager
 
     public function getReturnSettings()
     {
-        $response = $this->client->request('GET', 'https://api.allegro.pl/after-sales-service-conditions/implied-warranties', [
+        $response = $this->client->request('GET', 'https://api.allegro.pl/after-sales-service-conditions/return-policies', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->session->get('currentProfile')->getAllegroAccessToken(),
                 'Accept' => 'application/vnd.allegro.public.v1+json',
                 'Content-Type' => 'application/vnd.allegro.public.v1+json'
             ],
         ]);
-        return $response->getContent();
+        return new JsonResponse($response->getContent(), 200, [], true);
     }
 
 
