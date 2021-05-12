@@ -281,7 +281,15 @@ class AllegroUserManager
             ]);
             return json_decode($response->getContent(), true);
         } catch (\Exception $e) {
-            var_dump('Не удалось добавить товар номер ' . $product->getId());
+            var_dump($requestBody);
+            var_dump([
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $profile->getAllegroAccessToken(),
+                    'Content-Type' => 'application/vnd.allegro.public.v1+json',
+                    'Accept' => 'application/vnd.allegro.public.v1+json',
+                ],
+                'body' => $requestBody,
+            ]);
             return 'Не удалось добавить товар номер ' . $product->getId();
         }
     }
