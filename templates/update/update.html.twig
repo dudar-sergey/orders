@@ -15,6 +15,23 @@
                     </div>
                 </div>
             </div>
+            <div class="col-lg-4">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h4 class="mt-1 mb-1">Создать изображения</h4>
+                    </div>
+                    <div class="card-body">
+                            <select class="form-control" id="image-profile">
+                                <option disabled selected>Не выбрано</option>
+                                {% for profile in profiles %}
+                                    <option value="{{ profile.id }}">{{ profile.username }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="text" class="form-control mt-2" placeholder="Ссылка" id="image-url">
+                            <button type="button" class="btn mt-2" id="image-create-btn">Создать</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

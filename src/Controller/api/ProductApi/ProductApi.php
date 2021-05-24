@@ -4,11 +4,13 @@
 namespace App\Controller\api\ProductApi;
 
 
+use App\Add\ImageManager;
 use App\Add\ProductManager;
 use App\ebay\AllegroUserManager;
 use App\Entity\AllegroOffer;
 use App\Entity\Description;
 use App\Entity\Product;
+use App\Entity\Profile;
 use App\Entity\Supply;
 use App\Entity\SupplyProduct;
 use DateTime;
@@ -31,12 +33,14 @@ class ProductApi extends AbstractController
     private $productRep;
     private $em;
     private $productManager;
+    private $imageManager;
 
-    public function __construct(EntityManagerInterface $em, ProductManager $productManager)
+    public function __construct(EntityManagerInterface $em, ProductManager $productManager, ImageManager $imageManager)
     {
         $this->productRep = $em->getRepository(Product::class);
         $this->em = $em;
         $this->productManager = $productManager;
+        $this->imageManager = $imageManager;
     }
 
     /**
@@ -115,6 +119,21 @@ class ProductApi extends AbstractController
             $product->setDes($group);
         }
         $this->em->flush();
+        return new JsonResponse(['message' => 'ok']);
+    }
+
+    /**
+     * @Route("/images/create", methods={"POST"})
+     */
+    public function createImages(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        $url = $data['url'];
+        $profileId = $data['profile'];
+        var_dump($data);
+        if($profileId && $url) {
+            $this->imageManager->createNewImagesForProfile($url, $this->em->getRepository(Profile::class)->find($profileId));
+        }
         return new JsonResponse(['message' => 'ok']);
     }
 }
