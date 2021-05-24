@@ -74,6 +74,11 @@ class Profile
      */
     private $allegroRefreshToken;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Images::class, mappedBy="profile")
+     */
+    private $images;
+
     public function __toString()
     {
         return $this->username;
@@ -84,6 +89,7 @@ class Profile
         $this->orders = new ArrayCollection();
         $this->allegroOffers = new ArrayCollection();
         $this->allegroDeliveryMethods = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -279,6 +285,36 @@ class Profile
     public function setAllegroRefreshToken(?string $allegroRefreshToken): self
     {
         $this->allegroRefreshToken = $allegroRefreshToken;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Images[]
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(Images $image): self
+    {
+        if (!$this->images->contains($image)) {
+            $this->images[] = $image;
+            $image->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(Images $image): self
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getProfile() === $this) {
+                $image->setProfile(null);
+            }
+        }
 
         return $this;
     }

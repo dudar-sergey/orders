@@ -9,6 +9,7 @@ use App\Add\Statistic;
 use App\ebay\Allegro;
 use App\ebay\AllegroUserManager;
 use App\Entity\Description;
+use App\Entity\Images;
 use App\Entity\Order;
 use App\Entity\PaymentStatus;
 use App\Entity\Product;
@@ -216,6 +217,7 @@ class MainController extends AbstractController
             $currentProfile->setAllegroAccessToken($result['accessToken']);
             $currentProfile->setAllegroRefreshToken($result['refreshToken']);
             $this->em->flush();
+            $this->session->set('currentProfile', $currentProfile);
         }
         return $this->redirectToRoute('userprofile');
     }
@@ -358,7 +360,8 @@ class MainController extends AbstractController
             'refer' => $request->headers->get('referer'),
             'allegroOffer' => $product->getAllegroOffer($profile),
             'deliveryMethod' => $product->getDeliveryMethod($profile),
-            'deses' => $descriptions
+            'deses' => $descriptions,
+            'images' => $this->em->getRepository(Images::class)->findImages($product, $profile)
         ];
         return $this->render('products/card.html.twig', $forRender);
     }

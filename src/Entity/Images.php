@@ -32,6 +32,11 @@ class Images
      */
     private $main;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Profile::class, inversedBy="images")
+     */
+    private $profile;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -69,6 +74,18 @@ class Images
     public function setMain(bool $main): self
     {
         $this->main = $main;
+
+        return $this;
+    }
+
+    public function getProfile(): ?Profile
+    {
+        return $this->profile;
+    }
+
+    public function setProfile(?Profile $profile): self
+    {
+        $this->profile = $profile;
 
         return $this;
     }
