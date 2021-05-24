@@ -470,7 +470,8 @@ class AllegroUserManager
             'headers' => [
                 'Authorization' => 'Bearer ' . $profile->getAllegroAccessToken(),
                 'Accept' => 'application/vnd.allegro.public.v1+json',
+                'Content-Type' => 'application/vnd.allegro.public.v1+json'
             ],
-        ]);
+        ])->getContent();
     }
 }
