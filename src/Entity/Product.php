@@ -138,6 +138,16 @@ class Product
      */
     private $outOfStocks;
 
+    /**
+     * @ORM\Column(type="string", length=1000, nullable=true)
+     */
+    private $allegroProductId;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $allegroImages = [];
+
 
     public function __toString(): string
     {
@@ -596,6 +606,30 @@ class Product
                 $outOfStock->setProduct(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAllegroProductId(): ?string
+    {
+        return $this->allegroProductId;
+    }
+
+    public function setAllegroProductId(?string $allegroProductId): self
+    {
+        $this->allegroProductId = $allegroProductId;
+
+        return $this;
+    }
+
+    public function getAllegroImages(): ?array
+    {
+        return $this->allegroImages;
+    }
+
+    public function setAllegroImages(?array $allegroImages): self
+    {
+        $this->allegroImages = $allegroImages;
 
         return $this;
     }
