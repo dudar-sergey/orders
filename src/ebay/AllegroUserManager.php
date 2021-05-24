@@ -463,4 +463,14 @@ class AllegroUserManager
 
         return $parameters;
     }
+
+    public function getProductId($ean)
+    {
+        return $this->client->request('GET', 'https://api.allegro.pl/sale/products?ean='.$ean, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->session->get('currentProfile')->getAllegroAccessToken(),
+                'Accept' => 'application/vnd.allegro.public.v1+json',
+            ],
+        ]);
+    }
 }
