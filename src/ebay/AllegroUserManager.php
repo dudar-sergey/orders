@@ -5,6 +5,7 @@ namespace App\ebay;
 
 
 use App\Entity\AllegroOffer;
+use App\Entity\Images;
 use App\Entity\Order;
 use App\Entity\Product;
 use App\Entity\Profile;
@@ -204,7 +205,7 @@ class AllegroUserManager
         $kit == true ? $description = $product->getDescription() : $description = str_ireplace('{auto}', $product->getAuto(), $product->getDes()->getPlDes());
         $categoryId = $product->getDes()->getAllegroCategoryId();
         $upc = $product->getUpc();
-        $images = $product->getImages();
+        $images = $this->em->getRepository(Images::class)->findImages($product, $profile);
         $arrImage = [];
         foreach ($images as $image) {
             $arrImage[] = ['url' => $image->getUrl()];
