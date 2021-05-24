@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\ebay\AllegroUserManager;
 use App\Entity\Product;
+use App\Entity\Profile;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -42,10 +43,11 @@ class ProductIdCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $arg1 = $input->getArgument('arg1');
+        $profile = $this->em->getRepository(Profile::class)->find(1);
         /** @var Product[] $products */
         $products = $this->em->getRepository(Product::class)->findAll();
         foreach ($products as $product) {
-            $data = json_decode($this->am->getProductId($product->getUpc()), true);
+            $data = json_decode($this->am->getProductId($product->getUpc(), $profile), true);
             $product->setAllegroProductId($data['products'][0]['id']);
             $product->setAllegroImages($data['products'][0]['images']);
         }

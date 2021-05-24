@@ -464,11 +464,11 @@ class AllegroUserManager
         return $parameters;
     }
 
-    public function getProductId($ean)
+    public function getProductId($ean, Profile $profile)
     {
         return $this->client->request('GET', 'https://api.allegro.pl/sale/products?ean='.$ean, [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->session->get('currentProfile')->getAllegroAccessToken(),
+                'Authorization' => 'Bearer ' . $profile->getAllegroAccessToken(),
                 'Accept' => 'application/vnd.allegro.public.v1+json',
             ],
         ]);
