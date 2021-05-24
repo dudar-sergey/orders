@@ -46,11 +46,15 @@ class ProductIdCommand extends Command
         $profile = $this->em->getRepository(Profile::class)->find(1);
         /** @var Product[] $products */
         $products = $this->em->getRepository(Product::class)->findAll();
+        $io->progressStart(count($products));
         foreach ($products as $product) {
             $data = json_decode($this->am->getProductId($product->getUpc(), $profile), true);
+            if(isset($data['products'][0]))
             $product->setAllegroProductId($data['products'][0]['id']);
             $product->setAllegroImages($data['products'][0]['images']);
+            $io->progressAdvance();
         }
+        $io->progressFinish();
         $this->em->flush();
         return Command::SUCCESS;
     }
