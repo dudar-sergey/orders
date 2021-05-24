@@ -205,16 +205,14 @@ class AllegroUserManager
         $kit == true ? $description = $product->getDescription() : $description = str_ireplace('{auto}', $product->getAuto(), $product->getDes()->getPlDes());
         $categoryId = $product->getDes()->getAllegroCategoryId();
         $upc = $product->getUpc();
-        $images = $this->em->getRepository(Images::class)->findImages($product, $profile);
-        $arrImage = [];
-        foreach ($images as $image) {
-            $arrImage[] = ['url' => $image->getUrl()];
-        }
-
+        $arrImage = $product->getAllegroImages();
         $requestBody = [
             'name' => $name,
             'category' => [
                 'id' => $product->getDes()->getAllegroCategoryId(),
+            ],
+            'product' => [
+                'id' => $product->getAllegroProductId(),
             ],
             'images' =>
                 $arrImage,
