@@ -6,7 +6,6 @@ namespace App\Controller;
 
 use App\Add\Add;
 use App\Add\Statistic;
-use App\ebay\Allegro;
 use App\ebay\AllegroUserManager;
 use App\Entity\Description;
 use App\Entity\Images;
@@ -20,10 +19,8 @@ use App\Form\CreateOfferType;
 use App\Form\DescriptionType;
 use App\Form\KitType;
 use App\Form\MNumberType;
-use App\Form\ProductType;
 use App\Form\SaleType;
 use Doctrine\ORM\EntityManagerInterface;
-use phpDocumentor\Reflection\DocBlock\Tags\Throws;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
