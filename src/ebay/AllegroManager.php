@@ -53,7 +53,7 @@ class AllegroManager extends AllegroUserManager
     protected function remove($entities)
     {
         foreach ($entities as $entity) {
-            $entity->setSatus(0);
+            $entity->setStatus(0);
         }
         $this->em->flush();
     }
