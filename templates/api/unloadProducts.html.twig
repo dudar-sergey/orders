@@ -10,7 +10,7 @@
             <td class="product-img"><img src="{{ product.images.first.url ?? 'https://kknd26.ru/images/no_photo.png' }}"
                      width="150" height="100" alt=""></td>
             <td><a href="{{ path('cardItem', {'itemId': product.id}) }}">{{ product.allegroTitle }}
-                    {% if product.name | length > 50 %}
+                    {% if product.allegroTitle | length > 50 %}
                         <br><i style="color: red; font-size: small">В названии больше 50 символов</i>
                     {% endif %}
                 </a></td>
