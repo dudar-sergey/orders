@@ -23,8 +23,8 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 class AllegroUserManager
 {
     private $session;
-    private $client;
-    private $em;
+    protected $client;
+    protected $em;
 
     public function __construct(SessionInterface $session, EntityManagerInterface $em)
     {
@@ -293,35 +293,14 @@ class AllegroUserManager
         }
     }
 
-    public function getOfferFromAllegro($offerId, Profile $profile, $json = false)
+    public function getOfferFromAllegro($offerId, Profile $profile)
     {
-        $response = null;
-        $content = null;
-        try {
-            $response = $this->client->request('GET', 'https://api.allegro.pl/sale/offers/' . $offerId, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $profile->getAllegroAccessToken(),
-                    'Accept' => 'application/vnd.allegro.public.v1+json',
-                ],
-            ]);
-        } catch (\Exception $e) {
-            var_dump('Ошибка получения оффера');
-        }
-
-        if ($response) {
-            try {
-                $content = $response->getContent();
-            } catch (\Exception $e) {
-                var_dump($e->getMessage());
-            }
-
-        }
-
-        if ($json) {
-            return $content;
-        } else {
-            return json_decode($content, true);
-        }
+        return $this->client->request('GET', 'https://api.allegro.pl/sale/offers/' . $offerId, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $profile->getAllegroAccessToken(),
+                'Accept' => 'application/vnd.allegro.public.v1+json',
+            ],
+        ])->getContent();
     }
 
     function GUIDv4($trim = true)
