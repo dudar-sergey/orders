@@ -30,15 +30,21 @@ class AllegroManager extends AllegroUserManager
             $this->remove($profile->getAllegroOffers());
             foreach ($allegroOffers['offers'] as $allegroOffer) {
                 $product = $this->em->getRepository(Product::class)->findOneBy(['articul' => $allegroOffer['external']['id']]);
-                $offer = new AllegroOffer();
-                $offer
-                    ->setProduct($product)
-                    ->setProfile($profile)
-                    ->setAllegroId($allegroOffer['id']);
+                $offer = $this->em->getRepository(AllegroOffer::class)->findOneBy(['allegroId' => $allegroOffer['id']]);
+                if(!$offer) {
+                    $offer = new AllegroOffer();
+                    $offer
+                        ->setProduct($product)
+                        ->setProfile($profile)
+                        ->setAllegroId($allegroOffer['id']);
+
+                    $this->em->persist($offer);
+                }
                 if($allegroOffer['publication']['status'] == 'ACTIVE') {
                     $offer->setStatus(1);
+                } else {
+                    $offer->setStatus(null);
                 }
-                $this->em->persist($offer);
             }
         }
         $this->em->flush();
@@ -47,7 +53,7 @@ class AllegroManager extends AllegroUserManager
     protected function remove($entities)
     {
         foreach ($entities as $entity) {
-            $this->em->remove($entity);
+            $entity->setSatus(0);
         }
         $this->em->flush();
     }
