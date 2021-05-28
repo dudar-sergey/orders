@@ -20,21 +20,11 @@ class TableController extends MainController
      */
     public function tableIndex(AllegroManager $allegroManager): Response
     {
-        $array = [];
-        /** @var Product[] $products */
-        $products = $this->em->getRepository(Product::class)->findBy([], [], 3);
+        $products = $this->em->getRepository(Product::class)->findBy([], ['quantity' => 'DESC']);
         $profiles = $this->em->getRepository(Profile::class)->findAll();
-        foreach ($products as $product) {
-            foreach ($profiles as $profile) {
-                if($product->getAllegroOffer($profile))
-                {
-                    $array[$product->getArticul()][] = json_decode($allegroManager->getOfferById($product->getAllegroOffer($profile)->getAllegroId(), $profile), true);
-                }
-            }
-        }
         $forRender = [
             'profiles' => $profiles,
-            'products' => $array
+            'products' => $products,
         ];
         return $this->render('table/table.html.twig', $forRender);
     }
