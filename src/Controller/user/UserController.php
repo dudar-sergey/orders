@@ -41,7 +41,7 @@ class UserController extends AbstractController
         if($currentProfile) {
             $forRender['allegroAuthUrl'] = 'https://allegro.pl/auth/oauth/authorize?response_type=code&client_id='.$currentProfile->getClientId().'&redirect_uri=https://localhost:8000/allAuth&promt=none';
         }
-        $forRender = array_merge($forRender, [
+        $forRender = array_merge($forRender ?? [], [
             'profiles' => $profiles,
             'currentProfile' => $currentProfile,
         ]);
