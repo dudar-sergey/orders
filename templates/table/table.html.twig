@@ -1,22 +1,40 @@
 {% extends 'base.html.twig' %}
 {% block body %}
+    <style>
+        .tableFixHead          { overflow: auto; height: 100px; }
+        .tableFixHead thead th { position: sticky; top: 0; z-index: 1; }
+
+        /* Just common table stuff. Really. */
+        table  { border-collapse: collapse; width: 100%; }
+        th, td { padding: 8px 16px; }
+        th
+    </style>
     <div class="container-fluid">
         <div class="row mt-3">
             <div class="col-xl-12">
                 <div class="card shadow">
                     <div class="card-body">
-                        <table class="table table-bordered">
+                        <table class="table table-bordered tableFixHead">
                             <thead>
-                            <th>Артикул</th>
-                            {% for profile in profiles %}
-                                <th>{{ profile.username }}</th>
-                            {% endfor %}
+                            <tr>
+                                <th>Артикул</th>
+                                <th>Количество на складе</th>
+                                {% for profile in profiles %}
+                                    <th>{{ profile.username }}</th>
+                                {% endfor %}
+                            </tr>
                             </thead>
                             <tbody>
-                            {% for product, key in products|keys %}
+                            {% for product in products %}
                                 <tr>
-                                    <td>{{ key }}</td>
-                                    {% for profile in product %}
+                                    <td>{{ product.articul }}</td>
+                                    <td>{{ product.quantity }}</td>
+                                    {% for profile in profiles %}
+                                        {% if product.getAllegroOffer(profile) %}
+                                            <td class="{{ product.quantity < 5 ? 'table-warning': '' }}">Да</td>
+                                        {% else %}
+                                            <td class="{{ product.quantity == 0 ? '' : 'table-danger' }}">Нет</td>
+                                        {% endif %}
                                     {% endfor %}
                                 </tr>
                             {% endfor %}
