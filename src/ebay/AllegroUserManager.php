@@ -218,7 +218,7 @@ class AllegroUserManager
                 'id' => $product->getDes()->getAllegroCategoryId(),
             ],
             'images' =>
-                $arrImage,
+                $images,
 
             'parameters' => $this->getParametersForProduct($product),
             'description' => [
@@ -275,8 +275,7 @@ class AllegroUserManager
             $requestBody['product'] = [
                 'id' => $product->getAllegroProductId(),
             ];
-            $images = $product->getImages();
-            $requestBody['images'] = $images;
+            $requestBody['images'] = $arrImage;
         }
         $requestBody = json_encode($requestBody, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP);
         try {
