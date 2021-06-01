@@ -44,7 +44,7 @@ class OrdersManager extends Manager
     public function createAllegroOrder($order, $profile): ?int
     {
         $newOrder = $this->orderRep->createOrder([
-            'price' => $order['payment']['paidAmount']['amount'],
+            'price' => $order['summary']['totalToPay']['amount'],
             'buyer' => $order['buyer']['firstName'].' '.$order['buyer']['lastName'].' '.$order['buyer']['login'],
             'placement' => 'allegro',
             'payment' => $order['status'],
