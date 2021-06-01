@@ -240,10 +240,6 @@ class ApiController extends AbstractController
     public function getNonActivateProducts(): Response
     {
         $exportProducts = [];
-//        $criteria = new Criteria();
-//        $criteria->where(Criteria::expr()->neq('name', null));
-//        $criteria->andWhere(Criteria::expr()->eq('sync', true));
-//        $criteria->orderBy(['id' => Criteria::DESC]);
         $products = $this->em->getRepository(Product::class)->getNonActiveProducts();
         foreach ($products as $product) {
             $allegroOffer = $product->getAllegroOffer($this->session->get('currentProfile'));

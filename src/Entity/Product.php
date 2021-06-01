@@ -465,7 +465,7 @@ class Product
     public function getAllegroOffer($profile)
     {
         foreach ($this->allegroOffers as $allegroOffer) {
-            if($profile->getId() == $allegroOffer->getProfile()->getId()) {
+            if($profile->getId() == $allegroOffer->getProfile()->getId() && $allegroOffer->getStatus() !== null) {
                 return $allegroOffer;
             }
         }
