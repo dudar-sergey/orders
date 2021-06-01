@@ -217,9 +217,7 @@ class AllegroUserManager
             'category' => [
                 'id' => $product->getDes()->getAllegroCategoryId(),
             ],
-            'images' =>
-                $images,
-
+            'images' => $images,
             'parameters' => $this->getParametersForProduct($product),
             'description' => [
                 'sections' => [
