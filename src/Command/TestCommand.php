@@ -8,6 +8,7 @@ use App\Add\Statistic;
 use App\ebay\AllegroUserManager;
 use App\Entity\AllegroOffer;
 use App\Entity\Images;
+use App\Entity\OrderAllegroOffers;
 use App\Entity\Product;
 use App\Entity\Profile;
 use App\Entity\User;
@@ -59,10 +60,15 @@ class TestCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $articles = [];
         $arg1 = $input->getArgument('arg1');
-        $time = new DateTime('now', new DateTimeZone('+3'));
-        $string = '['.$time->format('d-m-Y G:i:s').'] Запись произведена';
-        file_put_contents(__DIR__.'/logs.txt', file_get_contents(__DIR__.'/logs.txt').PHP_EOL.$string);
-
+        $orderAllegroOffers = $this->em->getRepository(OrderAllegroOffers::class)->findAll();
+        foreach ($orderAllegroOffers as $orderAllegroOffer) {
+            $offer = $orderAllegroOffer->getAllegroOffer();
+            if($offer) {
+                $product = $offer->getProduct();
+                $orderAllegroOffer->setProduct($product);
+            }
+        }
+        $this->em->flush();
         return Command::SUCCESS;
     }
 

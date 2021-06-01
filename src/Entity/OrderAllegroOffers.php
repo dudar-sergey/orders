@@ -37,6 +37,11 @@ class OrderAllegroOffers
      */
     private $date;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Product::class)
+     */
+    private $product;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -86,6 +91,18 @@ class OrderAllegroOffers
     public function setDate(?\DateTimeInterface $date): self
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    public function getProduct(): ?Product
+    {
+        return $this->product;
+    }
+
+    public function setProduct(?Product $product): self
+    {
+        $this->product = $product;
 
         return $this;
     }
