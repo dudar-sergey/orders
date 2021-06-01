@@ -54,13 +54,17 @@ class OrdersManager extends Manager
         foreach ($order['lineItems'] as $offer) {
             $allegroOffer = $this->em->getRepository(AllegroOffer::class)->findOneBy(['allegroId' => $offer['offer']['id']]);
             if($allegroOffer) {
-                $this->em->getRepository(OrderAllegroOffers::class)->createOrderAllegroOffer($newOrder, $allegroOffer, $offer['quantity']);
+                $this->em->getRepository(OrderAllegroOffers::class)->createOrderAllegroOffer($newOrder, $allegroOffer->getProduct(), $offer['quantity']);
             }
             $quantity = $allegroOffer->getProduct()->getQuantity() - $offer['quantity'];
-            $this->ppm->changeQuantityProduct($allegroOffer->getProduct(), $quantity, $profile);
-        }
-        $this->em->getRepository(Sale::class)->createSale($newOrder);
+            try {
+                $this->ppm->changeQuantityProduct($allegroOffer->getProduct(), $quantity, $profile);
 
+            }catch (\Exception $e) {}
+        }
+        if($order['status'] != 'READY_FOR_PROCESSING') {
+            $this->em->getRepository(Sale::class)->createSale($newOrder);
+        }
         return $newOrder->getId();
     }
 }

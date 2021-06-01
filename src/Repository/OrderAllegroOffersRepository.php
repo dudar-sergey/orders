@@ -27,12 +27,12 @@ class OrderAllegroOffersRepository extends ServiceEntityRepository
         $this->em = $em;
     }
 
-    public function createOrderAllegroOffer(Order $order, AllegroOffer $allegroOffer, int $quantity): OrderAllegroOffers
+    public function createOrderAllegroOffer(Order $order, Product $product, int $quantity): OrderAllegroOffers
     {
         $orderAllegroOffer = new OrderAllegroOffers();
         $orderAllegroOffer
             ->setQuantity($quantity)
-            ->setAllegroOffer($allegroOffer)
+            ->setProduct($product)
             ->setMyOrder($order)
             ->setDate($order->getDate());
         $this->em->persist($orderAllegroOffer);
