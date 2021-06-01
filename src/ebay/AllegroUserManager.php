@@ -198,6 +198,7 @@ class AllegroUserManager
     public function addOfferToAllegro(Product $product, Profile $profile, bool $kit = null)
     {
         $name = $product->getAllegroTitle();
+        $images = [];
         if ($product->getDes() == null) {
             var_dump('Нет описания ' . $product->getId());
             return 0;
@@ -206,13 +207,15 @@ class AllegroUserManager
         $categoryId = $product->getDes()->getAllegroCategoryId();
         $upc = $product->getUpc();
         $arrImage = $product->getAllegroImages();
+        foreach ($product->getImages() as $image) {
+            $images[] = [
+                'url' => $image->getUrl(),
+            ];
+        }
         $requestBody = [
             'name' => $name,
             'category' => [
                 'id' => $product->getDes()->getAllegroCategoryId(),
-            ],
-            'product' => [
-                'id' => $product->getAllegroProductId(),
             ],
             'images' =>
                 $arrImage,
@@ -268,6 +271,13 @@ class AllegroUserManager
                 'unit' => 'UNIT'
             ],
         ];
+        if($product->getAllegroProductId()) {
+            $requestBody['product'] = [
+                'id' => $product->getAllegroProductId(),
+            ];
+            $images = $product->getImages();
+            $requestBody['images'] = $images;
+        }
         $requestBody = json_encode($requestBody, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP);
         try {
             $response = $this->client->request('POST', 'https://api.allegro.pl/sale/offers', [
