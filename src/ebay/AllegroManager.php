@@ -43,7 +43,7 @@ class AllegroManager extends AllegroUserManager
                 if($allegroOffer['publication']['status'] == 'ACTIVE') {
                     $offer->setStatus(1);
                 } else {
-                    $offer->setStatus(null);
+                    $offer->setStatus(0);
                 }
             }
         }
@@ -53,7 +53,7 @@ class AllegroManager extends AllegroUserManager
     protected function remove($entities)
     {
         foreach ($entities as $entity) {
-            $entity->setStatus(0);
+            $entity->setStatus(null);
         }
         $this->em->flush();
     }
