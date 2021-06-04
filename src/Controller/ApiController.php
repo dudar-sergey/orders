@@ -54,10 +54,12 @@ class ApiController extends AbstractController
         $name = $request->get('new_name') ?? null;
         $allegroName = $request->get('allegro_name') ?? null;
         $quantity = $request->get('quantity') ?? null;
-        if($product && $name && $quantity && $allegroName) {
+        $price = $request->get('price');
+        if($product && $quantity >= 0) {
             $product
                 ->setName($name)
-                ->setAllegroTitle($allegroName);
+                ->setAllegroTitle($allegroName)
+                ->setPrice($price);
             $this->em->flush();
 
             return new JsonResponse([
