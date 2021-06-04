@@ -11,13 +11,11 @@
                         <th>Остаток</th>
                         </thead>
                         <tbody>
-                        {% for orderOffer in sale.order.orderAllegroOffers %}
+                        {% for orderOffer in sale.myOrder.orderAllegroOffers %}
                             <tr>
                                 <td>
-                                    {% if orderOffer.allegroOffer %}
-                                        <a target="_blank"
-                                           href="{{ path('cardItem', {'itemId': orderOffer.product.id }) }}">{{ orderOffer.product.allegroTitle }}</a>
-                                    {% endif %}
+                                    <a target="_blank"
+                                       href="{{ path('cardItem', {'itemId': orderOffer.product.id }) }}">{{ orderOffer.product.allegroTitle }}</a>
                                 </td>
                                 <td>
                                     {{ orderOffer.myOrder.price ?? '-' }}
