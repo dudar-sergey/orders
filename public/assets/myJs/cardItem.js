@@ -28,7 +28,8 @@ async function sendRequest(data, productId) {
     const name = data.name
     const quantity = data.quantity
     const allegroName = data.allegroName
-    return fetch('/api/update_product/'+productId+'?new_name='+name+'&quantity='+quantity+'&allegro_name='+allegroName, {
+    const price = data.price
+    return fetch('/api/update_product/'+productId+'?new_name='+name+'&quantity='+quantity+'&allegro_name='+allegroName+'&price='+price, {
         method: 'GET'
     })
 }
@@ -37,10 +38,12 @@ function updateProduct(productId) {
     const name = document.getElementById('name').value
     const quantity = document.getElementById('quantity').value
     const allegroName = document.getElementById('allegro-name').value
+    const price = document.getElementById('price').value
     const data = {
         quantity,
         name,
         allegroName,
+        price,
     }
     sendRequest(data, productId)
         .then(async r => {

@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Add\Add;
 use App\Add\Statistic;
 
+use App\ebay\AllegroManager;
 use App\ebay\AllegroUserManager;
 use App\Entity\AllegroOffer;
 use App\Entity\Images;
@@ -33,6 +34,7 @@ class TestCommand extends Command
     private $statistic;
     private $am;
     private $pe;
+    protected $allegroManager;
     protected function configure()
     {
         $this
@@ -42,7 +44,7 @@ class TestCommand extends Command
         ;
     }
 
-    public function __construct(Statistic $statistic, AllegroUserManager $am, Add $add, EntityManagerInterface $em, string $name = null, UserPasswordEncoderInterface $pe)
+    public function __construct(AllegroManager $allegroManager, Statistic $statistic, AllegroUserManager $am, Add $add, EntityManagerInterface $em, string $name = null, UserPasswordEncoderInterface $pe)
     {
         parent::__construct($name);
         $this->add = $add;
@@ -50,6 +52,7 @@ class TestCommand extends Command
         $this->statistic = $statistic;
         $this->am = $am;
         $this->pe = $pe;
+        $this->allegroManager = $allegroManager;
         $this->client = HttpClient::create([
             //'proxy'=>'http://wNogF3:k1VdVC@185.183.161.196:8000',
         ]);
@@ -58,18 +61,38 @@ class TestCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $arrayImage = [];
         $articles = [];
         $arg1 = $input->getArgument('arg1');
-        $orderAllegroOffers = $this->em->getRepository(OrderAllegroOffers::class)->findAll();
-        foreach ($orderAllegroOffers as $orderAllegroOffer) {
-            $offer = $orderAllegroOffer->getAllegroOffer();
-            if($offer) {
-                $product = $offer->getProduct();
-                $orderAllegroOffer->setProduct($product);
-            }
+        /** @var Product[ $product */
+        $products = $this->em->getRepository(Product::class)->findBy(['allegroProductId' => null]);
+        foreach ($products as $product) {
+            if(isset($product->getImages()[0]) && $product->getAllegroTitle())
+            $this->proposeProduct($product);
+            var_dump($product->getArticul());
         }
-        $this->em->flush();
         return Command::SUCCESS;
+    }
+
+    public function proposeProduct(Product $product)
+    {
+        $profile = $this->em->find(Profile::class, 1);
+        $data = $this->allegroManager->proposeProduct($profile, $product);
+        $product->setAllegroProductId($data['id']);
+        $this->em->flush();
+    }
+
+    function uploadImages(Product $product)
+    {
+        $profile = $this->em->find(Profile::class, 1);
+        foreach ($product->getImages() as $image) {
+            $data = $this->allegroManager->uploadImage($profile, $image->getUrl());
+            $arrayImage[] = [
+                'url' => $data['location'],
+            ];
+        }
+        $product->setAllegroImages($arrayImage);
+        $this->em->flush();
     }
 
     public function syncFromAllegro()
