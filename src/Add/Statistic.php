@@ -88,7 +88,7 @@ class Statistic
         $sum = 0;
         foreach ($sales as $sale) {
             foreach ($sale->getOrder()->getOrderAllegroOffers() as $allegroOffer) {
-                $sum += $allegroOffer->getAllegroOffer()->getProduct()->getPrice();
+                $sum += $allegroOffer->getProduct()->getPrice();
             }
         }
         return $sum;
