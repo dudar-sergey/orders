@@ -16,16 +16,14 @@
                                 <td>
                                     {% if orderOffer.allegroOffer %}
                                         <a target="_blank"
-                                           href="{{ path('cardItem', {'itemId': orderOffer.allegroOffer.product.id }) }}">{{ orderOffer.allegroOffer.product.name }}</a>
+                                           href="{{ path('cardItem', {'itemId': orderOffer.product.id }) }}">{{ orderOffer.product.name }}</a>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if orderOffer.allegroOffer %}
-                                        {{ orderOffer.myOrder.price }}
-                                    {% endif %}
+                                    {{ orderOffer.myOrder.price ?? - }}
                                 </td>
                                 <td>{{ orderOffer.quantity }}</td>
-                                <td>{{ orderOffer.allegroOffer.product.quantity }}</td>
+                                <td>{{ orderOffer.product.quantity }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
