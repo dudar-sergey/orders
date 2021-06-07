@@ -62,7 +62,7 @@ class OrdersManager extends Manager
 
             }catch (\Exception $e) {}
         }
-        if($order['status'] != 'READY_FOR_PROCESSING') {
+        if($order['status'] == 'READY_FOR_PROCESSING') {
             $this->em->getRepository(Sale::class)->createSale($newOrder);
         }
         return $newOrder->getId();
