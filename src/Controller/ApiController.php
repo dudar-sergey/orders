@@ -352,6 +352,6 @@ class ApiController extends AbstractController
     public function getParameters(): JsonResponse
     {
         $profile = $this->em->getRepository(Profile::class)->find(1);
-        return $this->am->getParameters('253564', $profile);
+        return $this->am->getParameters('253566', $profile);
     }
 }

@@ -88,15 +88,16 @@ class Add
         $this->em->flush();
     }
 
-    public function csvToArray($file)
+    static function csvToArray($file, $delimiter = ';')
     {
         $context = [
-            CsvEncoder::DELIMITER_KEY => ';',
+            CsvEncoder::DELIMITER_KEY => $delimiter,
             CsvEncoder::ENCLOSURE_KEY => '"',
             CsvEncoder::ESCAPE_CHAR_KEY => '\\',
             CsvEncoder::KEY_SEPARATOR_KEY => ',',
         ];
-        return $this->serializer->decode($file, 'csv', $context);
+        $serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder()]);
+        return $serializer->decode($file, 'csv', $context);
     }
 
     public function syncToEbay($products)

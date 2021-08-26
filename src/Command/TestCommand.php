@@ -22,6 +22,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DomCrawler\Image;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -64,13 +65,20 @@ class TestCommand extends Command
         $arrayImage = [];
         $articles = [];
         $arg1 = $input->getArgument('arg1');
-        /** @var Product[ $product */
-        $products = $this->em->getRepository(Product::class)->findBy(['allegroProductId' => null]);
-        foreach ($products as $product) {
-            if(isset($product->getImages()[0]) && $product->getAllegroTitle())
-            $this->proposeProduct($product);
-            var_dump($product->getArticul());
+        $profile = $this->em->find(Profile::class, 1);
+        $csv = file_get_contents('./assets/data.csv');
+        $data = Add::csvToArray($csv);
+        foreach ($data as $product) {
+            $p = $this->em->getRepository(Product::class)->findOneBy(['articul' => $product['article']]);
+            $image = new Images();
+            $image
+                ->setProduct($p)
+                ->setUrl($product['url'])
+                ->setProfile($profile)
+                ->setMain(true);
+            $this->em->persist($image);
         }
+        $this->em->flush();
         return Command::SUCCESS;
     }
 

@@ -37,7 +37,7 @@ class ProductPlacementManager extends Manager
                         } catch (ClientExceptionInterface | RedirectionExceptionInterface | ServerExceptionInterface | TransportExceptionInterface $e) {
                             $this->log('Ошибка при изменении количества');
                         }
-                        $this->log('Товар '.$product->getArticul().' закончился. Ответ: '.$response);
+                        $this->log('Товар '.$product->getArticul().' закончился.');
                     }
                 }
             } else {
