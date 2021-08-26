@@ -1,1 +1,1 @@
-php bin/console cron
+php ../../bin/console cron
