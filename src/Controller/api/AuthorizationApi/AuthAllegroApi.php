@@ -41,10 +41,12 @@ class AuthAllegroApi extends AbstractController
             /** @var Profile[] $profiles */
             $profiles = $this->profileRep->findAllAllegro();
             foreach ($profiles as $profile) {
-                $tokens = $this->am->getTokenForUserWithRefreshToken($profile);
-                $profile->setAllegroAccessToken($tokens['accessToken']);
-                $profile->setAllegroRefreshToken($tokens['refreshToken']);
-                $this->em->flush();
+                try {
+                    $tokens = $this->am->getTokenForUserWithRefreshToken($profile);
+                    $profile->setAllegroAccessToken($tokens['accessToken']);
+                    $profile->setAllegroRefreshToken($tokens['refreshToken']);
+                    $this->em->flush();
+                } catch (\Exception $e) {}
             }
             return new JsonResponse(['message' => 'ok']);
         }
