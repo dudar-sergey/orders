@@ -39,7 +39,6 @@ class Ebay
     public function __construct(SessionInterface $session)
     {
         $this->serverUrl = 'https://api.ebay.com/ws/api.dll';
-        $this->requestToken = 'AgAAAA**AQAAAA**aAAAAA**GDZ0Xw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4aiDJCFpASdj6x9nY+seQ**BWAFAA**AAMAAA**RCeuqehuTBrW9E6n2CSKWaCK/3OjGuwv9vKKcdLnUNSGkPjiuG1BIQpalYMgSQwD5Oig98kmLdj0UyHAbdTMFTkWKYBEHJv6ncMor5V0Yr4wAV50jwRc5ih05PTzAGrka9PI+HNOjmjKSj2UaYx9gT+6R27FvXL36rQeL1IzIGw7BdPX28BZhjd2ujEqC2bKLE8QAc9EK3PYwgMyoXnEzdh1hqHA7brgkYunxqbI2Vqd9x5iPXCiDEbpFTIHMPRz+mOoyecH+XOApkLWzfWPhsDXOapyRvkKkLBaVcOaHx0kYhzk3VQtNmPyi//WdxgaWcs3bZeHQxlXKCJKNBoPkxn8kFANSTzQJpWJUvWNkPcLI3fM5D4MGhokjkXJmgdmmaSAn5IjKbuHdw4/sFGNAVItstlQs/G9xlzuxYwXgNBnsmOdynTCbS0BXr7PlZzqbAdQMgH14n4l3CKF5tqSfxWDaw2KWRZF7gBNLZKb1u5XtH/K84xoTn2rmHU7WA0RKT6Q+Y5DD5KZvSqBzKaLSwSKzykNI0WONlmiHAgiqqjjhx80yyG9DER7NjRhWmgOgKsfTDawwXQX2N+c0j5ZbWAGD5flwRMOpE9N6t0vMPNldr8RmBMDSkZatjkpIMLOQKlAIbzzJ9VVXhxRBVBquNn1q9TkQiOhGZhDlYEm3BOJmMZl4dSbDEt04/Z+qU3VT0EJx5MePtSxb2CFV0Beboi4c+0rFnCEdRGAZlcrtXmXbexHuuUAxom4vQ3DfnNQ';
         $this->siteID = 0;
         $this->session = $session;
         $this->client = HttpClient::create([

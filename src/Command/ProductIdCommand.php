@@ -45,7 +45,7 @@ class ProductIdCommand extends Command
         $arg1 = $input->getArgument('arg1');
         $profile = $this->em->getRepository(Profile::class)->find(1);
         /** @var Product[] $products */
-        $products = $this->em->getRepository(Product::class)->findAll();
+        $products = $this->em->getRepository(Product::class)->findBy(['allegroProductId' => null]);
         $io->progressStart(count($products));
         foreach ($products as $product) {
             $data = json_decode($this->am->getProductId($product->getUpc(), $profile), true);

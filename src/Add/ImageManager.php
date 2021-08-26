@@ -13,6 +13,8 @@ class ImageManager extends Manager
     {
         $products = $this->productRep->findAll();
         foreach ($products as $product) {
+            if(isset($product->getImages()[0]))
+            {
             $tempUrl = $url.$product->getArticul().'/'.$product->getArticul().'-MAIN.jpg';
             $urlImage = $this->send($tempUrl);
             if($urlImage) {
@@ -27,6 +29,7 @@ class ImageManager extends Manager
             $urlImage = $this->send($tempUrl);
             if($urlImage) {
                 $this->createImage($tempUrl, $profile, $product, false);
+            }
             }
         }
     }
