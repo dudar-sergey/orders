@@ -38,7 +38,7 @@ class CronCommand extends Command
         $arg1 = $input->getArgument('arg1');
         $cronLog = new CronLog();
         $cronLog->setText('Выполнен');
-        $cronLog->setCreateAt(new \DateTime('now'));
+        $cronLog->setCreateAt(new \DateTime('now', new \DateTimeZone('Europe/Moscow')));
         $this->em->persist($cronLog);
         $this->em->flush();
         return Command::SUCCESS;
