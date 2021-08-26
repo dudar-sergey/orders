@@ -44,7 +44,7 @@ function setProfileInSession(profileItem) {
             const data = await response.json()
             clientIdInput.value = data.profile.clientId
             clientSecretInput.value = data.profile.clientSecret
-            const url = 'https://allegro.pl/auth/oauth/authorize?response_type=code&client_id='+data.profile.clientId+'&redirect_uri=https://api288gg987124.greenauto.site/allAuth&promt=none'
+            const url = 'https://allegro.pl/auth/oauth/authorize?response_type=code&client_id='+data.profile.clientId+'&redirect_uri=https://api77823vfdb.polska-m.pl/allAuth&promt=none'
             authUrlButton.setAttribute('href', url)
         })
 }

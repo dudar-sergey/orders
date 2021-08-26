@@ -39,7 +39,7 @@ class UserController extends AbstractController
         /** @var Profile $currentProfile */
         $currentProfile = $this->session->get('currentProfile') ?? null;
         if($currentProfile) {
-            $forRender['allegroAuthUrl'] = 'https://allegro.pl/auth/oauth/authorize?response_type=code&client_id='.$currentProfile->getClientId().'&redirect_uri=https://localhost:8000/allAuth&promt=none';
+            $forRender['allegroAuthUrl'] = 'https://allegro.pl/auth/oauth/authorize?response_type=code&client_id='.$currentProfile->getClientId().'&redirect_uri=https://api77823vfdb.polska-m.pl/allAuth&promt=none';
         }
         $forRender = array_merge($forRender ?? [], [
             'profiles' => $profiles,
