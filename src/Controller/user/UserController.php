@@ -25,6 +25,9 @@ class UserController extends AbstractController
     {
         $this->em = $em;
         $this->session = $session;
+        if(!$this->session->get('currentProfile')) {
+            $this->session->set('currentProfile', $this->em->getRepository(Profile::class)->findOneBy([], null));
+        }
     }
 
     /**
