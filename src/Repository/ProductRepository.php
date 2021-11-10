@@ -67,7 +67,7 @@ class ProductRepository extends ServiceEntityRepository
         $product = new Product();
         $article = $data['article'] ?? null;
         $name = $data['name'] ?? null;
-        $price = $data['price'] ?? null;
+        $price = (float)$data['price'] ?? null;
         $quantity = $data['quantity'] ?? null;
         $auto = $data['auto'] ?? null;
         /** @var Description $des */
