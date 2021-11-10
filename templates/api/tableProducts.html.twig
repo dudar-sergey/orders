@@ -12,7 +12,7 @@
         <tbody>
         {% for product in products %}
             <tr>
-                <td><img src="{{ product.images.first.url ?? 'https://kknd26.ru/images/no_photo.png' }}" width="60" height="40" alt=""></td>
+                <td><img src="{{ product.images.first.url ?? product.allegroImages[0]['url'] ?? 'https://kknd26.ru/images/no_photo.png' }}" width="60" height="40" alt=""></td>
                 <td>{{ product.articul }}</td>
                 <td>{{ product.upc }}</td>
                 <td><a href="{{ path('cardItem', {'itemId': product.id}) }}">{{ product.des.plName ?? product.name }} {{ product.auto ?? '' }}</a></td>

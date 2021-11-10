@@ -634,4 +634,9 @@ class Product
         return $this;
     }
 
+    public function hasImages()
+    {
+        return !$this->images->isEmpty() || !empty($this->allegroImages);
+    }
+
 }

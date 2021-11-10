@@ -58,7 +58,7 @@
                                             <td class="{{ product.quantity == 0 ? '' : 'table-danger' }}">Нет</td>
                                         {% endif %}
                                     {% endfor %}
-                                    {% if product.getImages[0] is defined %}
+                                    {% if product.hasImages %}
                                         <td>Есть</td>
                                     {% else %}
                                         <td>Нет</td>
