@@ -201,7 +201,7 @@ class MainController extends AbstractController
      * @param Request $request
      * @return RedirectResponse
      */
-    public function test(Request $request): RedirectResponse
+    public function allegroAuth(Request $request): RedirectResponse
     {
         $user = $this->getUser();
         $code = $request->get('code');

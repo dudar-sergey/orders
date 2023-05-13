@@ -127,6 +127,7 @@ class Add
     public function syncOrdersFromEbay()
     {
         $response = $this->ebay->getOrdersFromEbay();
+        dd($response);
         $orders = $response['OrderArray']['Order'];
 
         foreach ($orders as $order) {
